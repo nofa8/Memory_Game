@@ -4,7 +4,7 @@ import androidx.compose.ui.graphics.Color
 
 // TO be changed eventually
 val ColorWhiteBorder = Color.White
-val ColorBottomBackground = Color(0xAAFFFFFF)
+val ColorBottomBackground = Color(0x66FFFFFF)
 val ColorBrainButton = Color(0xD5FAC3DC)
 val ColorBrainCoinsNumber = Color(0xFFF6ECEF)
 val ColorGameSection = Color(0xCCFFFFFF)

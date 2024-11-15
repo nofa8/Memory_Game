@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
+import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.components.BottomActionBar
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.components.TopActionBar
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.theme.ColorBackground
 
@@ -29,6 +30,7 @@ fun DashboardScreen() {
                 horizontal =  24.dp,
                 vertical = 10.dp
             ).padding(paddings))
+            BottomActionBar()
 
         }
 
