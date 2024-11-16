@@ -11,14 +11,17 @@ import androidx.compose.ui.Modifier
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.components.BottomActionBar
+import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.components.ControlButton
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.components.GameTab
+import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.components.NotificationButton
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.components.TopActionBar
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.theme.ColorBackground
 
 
 @Composable
-fun DashboardScreen() {
+fun DashboardScreen(navController: NavController) {
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         containerColor = ColorBackground
@@ -31,9 +34,13 @@ fun DashboardScreen() {
             TopActionBar(modifier = Modifier.padding(
                 horizontal =  24.dp,
                 vertical = 10.dp
-            ).padding(paddings))
+            ).padding(paddings),
+                leftFunction = {ControlButton()},
+                rightFunction = {NotificationButton()}
+            )
             GameTab(modifier = Modifier.padding(vertical = 4.dp).fillMaxWidth(),
                 text = "Play",
+                navController = navController
             )
             BottomActionBar()
 
