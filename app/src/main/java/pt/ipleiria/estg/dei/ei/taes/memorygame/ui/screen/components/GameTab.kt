@@ -96,7 +96,7 @@ fun GameTab(
 
 
                         if(brainValue<=0){
-//diz ao user que nao tem moedas suficientes
+                        //diz ao user que nao tem moedas suficientes
                         }
                         else{
                             brainViewModel.updateBrains(-1)

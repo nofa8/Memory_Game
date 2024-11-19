@@ -51,6 +51,7 @@ fun GameScreen(cardsRow: Int, cardsColumn: Int, brainViewModel: BrainViewModel) 
     var isClickable by remember { mutableStateOf(true) } // Track whether the game is clickable
     var elapsedTime by remember { mutableStateOf(0) } // Track elapsed time
     var isGameOver by remember { mutableStateOf(false) } // Track if the game is over
+    var hintIndices: List<Int>? by remember { mutableStateOf(null) } // Estado de indices das cartas reveladas
 
     // Timer for elapsed time
     LaunchedEffect(isGameOver) {
@@ -60,7 +61,76 @@ fun GameScreen(cardsRow: Int, cardsColumn: Int, brainViewModel: BrainViewModel) 
                 elapsedTime++
             }
         }
+        else{ //pop up jogo acabou, o teu tempo foi x
+
+        }
+
     }
+
+
+
+    fun revealHint() {
+        // Verificar se já existe uma carta revelada
+        if(brainViewModel.getBrainValue()<=0){
+            return
+        }
+        brainViewModel.updateBrains(-1)
+        if (flippedCards.size == 1) {
+            // Há uma carta revelada, então procurar pelo par correspondente
+            val firstRevealedIndex = flippedCards.first() // O índice da carta revelada
+            val firstRevealedCardValue = cards[firstRevealedIndex] // Valor da carta revelada
+
+            // Procurar a carta correspondente no restante das cartas
+            val matchingPair = cards.withIndex()
+                .filter { it.value == firstRevealedCardValue && it.index !in flippedCards } // Filtra o par correspondente
+                .map { it.index }
+
+            // Se encontrar o par correspondente, revela-se as cartas
+            matchingPair.firstOrNull()?.let { matchingIndex ->
+                flippedCards.add(matchingIndex)
+                matchedCards.addAll(listOf(firstRevealedIndex, matchingIndex)) // Marca as duas como combinadas
+            }
+        } else {
+            // Se nenhuma carta foi revelada (flippedCards vazio), revela um par de cartas que ainda não foram combinadas
+            val unmatchedPairs = cards.withIndex()
+                .groupBy { it.value }
+                .values
+                .filter { pair ->
+                    pair.all { it.index !in matchedCards && it.index !in flippedCards } // Apenas cartas não combinadas e não reveladas
+                }
+                .firstOrNull() // Escolhe o primeiro par válido (se houver)
+
+            unmatchedPairs?.let {
+                val indicesToReveal = it.map { it.index }
+                flippedCards.addAll(indicesToReveal)
+                matchedCards.addAll(indicesToReveal)
+            }
+        }
+
+        // Incrementar o número de jogadas após a dica
+        moves.intValue++
+
+
+
+
+        // Verifique se todas as cartas foram combinadas
+        if (matchedCards.size == cardCount) {
+            isGameOver = true
+        }
+
+        isClickable = false
+
+        CoroutineScope(Dispatchers.Main).launch {
+            delay(1000)
+            flippedCards.clear()
+            hintIndices?.let {
+                hintIndices = null // Reseta o estado das cartas reveladas
+            }
+            isClickable = true
+        }
+    }
+
+
 
     fun onCardClick(index: Int) {
         if (!isClickable) return // If not clickable, ignore the click
@@ -111,7 +181,11 @@ fun GameScreen(cardsRow: Int, cardsColumn: Int, brainViewModel: BrainViewModel) 
                     .padding(horizontal = 24.dp, vertical = 10.dp)
                     .padding(paddings),
                 leftFunction = { ControlButton(brainViewModel = brainViewModel) },
-                rightFunction = { HintButton() }
+                rightFunction = {
+                    HintButton(
+                        onClick = { revealHint() }
+                    )
+                }
             )
 
             // Display Elapsed Time
