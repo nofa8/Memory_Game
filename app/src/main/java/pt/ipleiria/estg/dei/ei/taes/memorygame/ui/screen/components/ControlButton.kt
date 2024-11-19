@@ -1,5 +1,7 @@
 package pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.components
 
+import BrainViewModel
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -16,12 +18,15 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import androidx.lifecycle.viewmodel.compose.viewModel
 import pt.ipleiria.estg.dei.ei.taes.memorygame.R
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.theme.ColorBrainButton
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.theme.ColorBrainCoinsNumber
@@ -31,7 +36,8 @@ import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.theme.ColorWhiteBorder
 
 @Composable
 fun ControlButton(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    brainViewModel: BrainViewModel
 ) {
     Column(modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,) {
@@ -66,7 +72,10 @@ fun ControlButton(
             }
 
         }
-        BrainCoins(modifier = Modifier.absoluteOffset(y = (-9.5f).dp).zIndex(1f), valueBrain = 2)
+        val uiState by brainViewModel.uiState.collectAsState()
+        val brainValue = uiState.brainValue
+
+        BrainCoins(modifier = Modifier.absoluteOffset(y = (-9.5f).dp).zIndex(1f),brainValue)
     }
 
 }
@@ -77,6 +86,7 @@ private fun BrainCoins(
     modifier: Modifier = Modifier,
     valueBrain: Int
 ) {
+
     Box(
         modifier = modifier
             .background(color = ColorBrainCoinsNumber,

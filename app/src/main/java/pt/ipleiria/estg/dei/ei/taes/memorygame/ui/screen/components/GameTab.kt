@@ -1,5 +1,6 @@
 package pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.components
 
+import BrainViewModel
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -13,6 +14,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -33,9 +35,11 @@ import androidx.navigation.NavController
 fun GameTab(
     modifier: Modifier,
     text: String,
-    navController: NavController
+    brainViewModel: BrainViewModel,
+     navController: NavController
 ) {
     var selectedBoard by remember { mutableStateOf("3x4") }
+
 
     Surface(
         modifier = modifier
@@ -84,11 +88,22 @@ fun GameTab(
             Row(
                 modifier = Modifier.padding(horizontal = 90.dp, vertical = 16.dp),
             ) {
+                val uiState by brainViewModel.uiState.collectAsState()
 
+                val brainValue = uiState.brainValue
                 Button(
                     onClick = {
-                        val (cardsRow, cardsColumn) = selectedBoard.split("x").map { it.toInt() }
-                        navController.navigate("game/$cardsRow/$cardsColumn")},
+
+
+                        if(brainValue<=0){
+//diz ao user que nao tem moedas suficientes
+                        }
+                        else{
+                            brainViewModel.updateBrains(-1)
+                            val (cardsRow, cardsColumn) = selectedBoard.split("x").map { it.toInt() }
+                            navController.navigate("game/$cardsRow/$cardsColumn")
+                        }
+                        },
                     modifier = Modifier.fillMaxWidth().height(70.dp),
 
 //                shape =

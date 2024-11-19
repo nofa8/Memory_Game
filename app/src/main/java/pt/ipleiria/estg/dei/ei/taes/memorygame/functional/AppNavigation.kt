@@ -1,6 +1,8 @@
 package pt.ipleiria.estg.dei.ei.taes.memorygame.functional
 
+import BrainViewModel
 import androidx.compose.runtime.Composable
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -12,9 +14,12 @@ import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.GameScreen
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
-
+    val brainViewModel: BrainViewModel = viewModel()
     NavHost(navController = navController, startDestination = "dashboard") {
-        composable("dashboard") { DashboardScreen(navController) }
+        composable("dashboard")
+        {
+            DashboardScreen(navController, brainViewModel)
+        }
         composable(
             "game/{cardsRow}/{cardsColumn}",
             arguments = listOf(
@@ -25,7 +30,7 @@ fun AppNavigation() {
             // Get the arguments from the backStackEntry
             val cardsRow = backStackEntry.arguments?.getInt("cardsRow") ?: 3 // Default value if no argument
             val cardsColumn = backStackEntry.arguments?.getInt("cardsColumn") ?: 4 // Default value if no argument
-            GameScreen(cardsRow, cardsColumn)
+            GameScreen(cardsRow, cardsColumn, brainViewModel)
         }
     }
 

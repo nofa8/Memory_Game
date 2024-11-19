@@ -1,5 +1,6 @@
 package pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen
 
+import BrainViewModel
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
@@ -37,9 +38,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import kotlin.math.floor
 
+//
 
 @Composable
-fun GameScreen(cardsRow: Int, cardsColumn: Int) {
+fun GameScreen(cardsRow: Int, cardsColumn: Int, brainViewModel: BrainViewModel) {
 
     val cardCount = cardsColumn * cardsRow
     val cards = remember { AppData.getPairsOfCards(cardCount / 2) }
@@ -108,7 +110,7 @@ fun GameScreen(cardsRow: Int, cardsColumn: Int) {
                 modifier = Modifier
                     .padding(horizontal = 24.dp, vertical = 10.dp)
                     .padding(paddings),
-                leftFunction = { ControlButton() },
+                leftFunction = { ControlButton(brainViewModel = brainViewModel) },
                 rightFunction = { HintButton() }
             )
 
