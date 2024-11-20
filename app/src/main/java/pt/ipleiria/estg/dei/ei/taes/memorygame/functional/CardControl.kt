@@ -2,7 +2,7 @@ package pt.ipleiria.estg.dei.ei.taes.memorygame.functional
 
 import pt.ipleiria.estg.dei.ei.taes.memorygame.R
 
-object AppData {
+object CardControl {
     private val numbers: List<Int> = (1..10).shuffled().map { if (it > 7) it + 3 else it }
     private val types: List<Char> = listOf('c', 'o', 'e', 'p')
 

@@ -4,8 +4,10 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -25,18 +27,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import pt.ipleiria.estg.dei.ei.taes.memorygame.R
-import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.theme.ColorBrainButton
+import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.theme.ColorBackground
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.theme.ColorBrainCoinsNumber
-import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.theme.ColorImageBlueShadow
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.theme.ColorImageYellowShadow
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.theme.ColorSurface
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.theme.ColorTextPrimary
-import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.theme.ColorWhiteBorder
 
 @Composable
 fun HintButton(
     modifier: Modifier = Modifier,
-    onClick: () -> Unit = {}
+    onClick: () -> Unit = {},
+    brainViewModel: BrainViewModel
 ) {
     Column(modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,) {
@@ -49,13 +50,13 @@ fun HintButton(
                     color = Color.Transparent,
                     shape = CircleShape
                 )
-                .size(54.dp)
+                .size(60.dp)
 
         ) {
 
             Box(
                 modifier = Modifier
-                    .size(54.dp)
+                    .size(60.dp)
                     .border(
                         width = 1.5.dp,
                         color = ColorSurface,
@@ -63,7 +64,7 @@ fun HintButton(
                     )
                     .customShadow(
                         color = ColorImageYellowShadow,
-                        alpha = 0.15f,
+                        alpha = 0.55f,
                         shadowRadius = 8.dp,
                         borderRadius = 48.dp,
                         offsetY = 3.dp
@@ -76,14 +77,14 @@ fun HintButton(
                     painter = painterResource(id = R.drawable.tips_bulb),
                     contentDescription = "Notifications",
                     modifier = modifier
-                        .size(46.dp)
+                        .size(50.dp)
                         .clip(CircleShape)
 
                 )
             }
         }
 
-        BrainCoinInformation(modifier = Modifier.absoluteOffset(y = (-9.5f).dp).zIndex(1f))
+        BrainCoinInformation(brainViewModel = brainViewModel, modifier = Modifier.absoluteOffset(y = (-6.5f).dp).zIndex(1f))
 
     }
 }
@@ -92,38 +93,46 @@ fun HintButton(
 @Composable
 private fun BrainCoinInformation(
     modifier: Modifier = Modifier,
+    brainViewModel: BrainViewModel
 ) {
-    val hintCust = 1
-    Box(
+
+    Row(
         modifier = modifier
-            .background(color = ColorBrainCoinsNumber,
-
-                shape = RoundedCornerShape(12.dp)
-
+            .background(
+                color = ColorBrainCoinsNumber,
+                shape = RoundedCornerShape(16.dp)
             )
-            .width(80.dp)
-            .padding(
-                vertical = 2.dp,
-                horizontal = 10.dp
-            )
-//            .border(
-//                width = 2.dp,
-//                brush = Brush.linearGradient(
-//                    0f to ColorGradient1,
-//                    0.25f to ColorGradient2,
-//                    1f to ColorGradient3
-//                ),
-//                shape = CircleShape
-//            )
-        ,
-        contentAlignment = Alignment.Center
+            .padding(horizontal = 6.dp, vertical = 2.5f.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(6.dp)
     ) {
-        Text(
-            text = "-"+hintCust+" Brain",
-            style = MaterialTheme.typography.bodyMedium,
-            color = ColorTextPrimary.copy(alpha = 0.7f),
-            fontWeight = FontWeight.SemiBold
-
-        )
+        Box(
+            modifier = Modifier
+                .padding(vertical = 4.dp)
+        ) {
+            Text(
+                text = brainViewModel.getBrainValue().toString(),
+                style = MaterialTheme.typography.bodyMedium.copy(
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF0D47A1)
+                )
+            )
+        }
+        Box(
+            modifier = Modifier
+                .background(
+                    color = ColorBrainCoinsNumber,
+                    shape = CircleShape
+                )
+//                .padding(right)
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.brain),
+                contentDescription = "BrainCoins",
+                modifier = Modifier.size(24.dp)
+            )
+        }
     }
+
+
 }

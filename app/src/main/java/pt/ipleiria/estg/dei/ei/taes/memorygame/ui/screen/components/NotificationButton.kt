@@ -21,7 +21,7 @@ fun NotificationButton(
 ) {
     Box(
         modifier = Modifier
-            .size(54.dp)
+            .size(60.dp)
             .border(
                 width = 1.5.dp,
                 color = ColorSurface,
@@ -40,7 +40,7 @@ fun NotificationButton(
             painter = painterResource(id = R.drawable.bell_64),
             contentDescription = "Notifications",
             modifier = modifier
-                .size(46.dp)
+                .size(50.dp)
                 .clip(CircleShape)
 
         )

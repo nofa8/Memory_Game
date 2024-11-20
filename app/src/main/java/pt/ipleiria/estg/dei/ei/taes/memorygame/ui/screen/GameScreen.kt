@@ -28,9 +28,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import pt.ipleiria.estg.dei.ei.taes.memorygame.R
-import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.AppData
+import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.CardControl
 import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.CardFile
-import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.components.ControlButton
+import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.components.BrainCoinsButton
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.components.HintButton
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.components.TopActionBar
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.theme.ColorBackground
@@ -39,11 +39,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.navigation.NavController
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.PopUpEndGame
-
-
-
-
 import androidx.compose.ui.platform.LocalContext
+import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.components.BackButton
 
 //
 
@@ -51,7 +48,7 @@ import androidx.compose.ui.platform.LocalContext
 fun GameScreen(cardsRow: Int, cardsColumn: Int, brainViewModel: BrainViewModel, navController: NavController) {
 
     val cardCount = cardsColumn * cardsRow
-    val cards = remember { AppData.getPairsOfCards(cardCount / 2) }
+    val cards = remember { CardControl.getPairsOfCards(cardCount / 2) }
     val flippedCards = remember { mutableStateListOf<Int>() }
     val matchedCards = remember { mutableStateListOf<Int>() }
     val moves = remember { mutableIntStateOf(0) }
@@ -95,9 +92,7 @@ fun GameScreen(cardsRow: Int, cardsColumn: Int, brainViewModel: BrainViewModel, 
                     }
                 }
                 else{
-
                     Toast.makeText(context, "Brains coins insufficient!!", Toast.LENGTH_SHORT).show()
-
                     navController.navigate("dashboard")
                 }
 
@@ -112,17 +107,47 @@ fun GameScreen(cardsRow: Int, cardsColumn: Int, brainViewModel: BrainViewModel, 
         )
     }
 
+    fun onCardClick(index: Int) {
+        if (!isClickable) return // If not clickable, ignore the click
 
+        if (flippedCards.size < 2 && index !in flippedCards && index !in matchedCards) {
+            flippedCards.add(index)
+        }
 
+        if (flippedCards.size == 2) {
+            moves.intValue++
+            val firstCard = cards[flippedCards[0]]
+            val secondCard = cards[flippedCards[1]]
 
+            if (firstCard == secondCard) {
+                matchedCards.addAll(flippedCards)
 
+                if(matchedCards.size == cardCount){
+                    isGameOver = true
 
+                }
+                flippedCards.clear()
+
+            }else{
+                // Set isClickable to false to prevent further clicks
+                isClickable = false
+                // Delay to allow the user to see the flipped cards before resetting
+                CoroutineScope(Dispatchers.Main).launch {
+                    delay(1000) // 1 second delay
+                    flippedCards.clear()
+
+                    // After the delay, make cards clickable again
+                    isClickable = true
+                }
+            }
+
+        }
+    }
 
     fun revealHint() {
         // Verificar se já existe uma carta revelada
         if(brainViewModel.getBrainValue()<=0){
-                Toast.makeText(context, "Brains coins insufficient!!", Toast.LENGTH_SHORT).show()
-
+                Toast.makeText(context, "Insufficient Brains coins!!", Toast.LENGTH_SHORT).show()
                 return
         }
         if( isGameOver == true || isClickable == false){
@@ -141,8 +166,9 @@ fun GameScreen(cardsRow: Int, cardsColumn: Int, brainViewModel: BrainViewModel, 
 
             // Se encontrar o par correspondente, revela-se as cartas
             matchingPair.firstOrNull()?.let { matchingIndex ->
-                flippedCards.add(matchingIndex)
-                matchedCards.addAll(listOf(firstRevealedIndex, matchingIndex)) // Marca as duas como combinadas
+//                flippedCards.add(matchingIndex)
+//                matchedCards.addAll(listOf(firstRevealedIndex, matchingIndex)) // Marca as duas como combinadas
+                onCardClick(matchingIndex)
             }
         } else {
             // Se nenhuma carta foi revelada (flippedCards vazio), revela um par de cartas que ainda não foram combinadas
@@ -156,71 +182,16 @@ fun GameScreen(cardsRow: Int, cardsColumn: Int, brainViewModel: BrainViewModel, 
 
             unmatchedPairs?.let {
                 val indicesToReveal = it.map { it.index }
-                flippedCards.addAll(indicesToReveal)
-                matchedCards.addAll(indicesToReveal)
+                for( index in indicesToReveal){
+                    onCardClick(index)
+                }
             }
         }
-
-        // Incrementar o número de jogadas após a dica
-        moves.intValue++
-
-
-
-
-        // Verifique se todas as cartas foram combinadas
-        if (matchedCards.size == cardCount) {
-            isGameOver = true
+        hintIndices?.let {
+            hintIndices = null // Reseta o estado das cartas reveladas
         }
 
-        isClickable = false
-
-        CoroutineScope(Dispatchers.Main).launch {
-            delay(1000)
-            flippedCards.clear()
-            hintIndices?.let {
-                hintIndices = null // Reseta o estado das cartas reveladas
-            }
-            isClickable = true
-        }
     }
-
-
-
-    fun onCardClick(index: Int) {
-        if (!isClickable) return // If not clickable, ignore the click
-
-        if (flippedCards.size < 2 && index !in flippedCards && index !in matchedCards) {
-            flippedCards.add(index)
-        }
-
-        if (flippedCards.size == 2) {
-            moves.intValue++
-            val firstCard = cards[flippedCards[0]]
-            val secondCard = cards[flippedCards[1]]
-
-            if (firstCard == secondCard) {
-                matchedCards.addAll(flippedCards)
-            }
-
-            // Set isClickable to false to prevent further clicks
-            isClickable = false
-
-            // Delay to allow the user to see the flipped cards before resetting
-            CoroutineScope(Dispatchers.Main).launch {
-                delay(1000) // 1 second delay
-                flippedCards.clear()
-
-                // After the delay, make cards clickable again
-                isClickable = true
-            }
-
-            if(matchedCards.size == cardCount){
-                isGameOver = true}
-
-
-        }
-    }
-
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         containerColor = ColorBackground
@@ -234,9 +205,13 @@ fun GameScreen(cardsRow: Int, cardsColumn: Int, brainViewModel: BrainViewModel, 
                 modifier = Modifier
                     .padding(horizontal = 24.dp, vertical = 10.dp)
                     .padding(paddings),
-                leftFunction = { ControlButton(brainViewModel = brainViewModel) },
+                leftFunction = { BackButton(onConfirmExit =  {
+                    navController.navigate("dashboard")
+                }
+                ) },
                 rightFunction = {
                     HintButton(
+                        brainViewModel = brainViewModel,
                         onClick = { revealHint() }
                     )
                 }

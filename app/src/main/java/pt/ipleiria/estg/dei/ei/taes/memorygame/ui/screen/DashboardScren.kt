@@ -12,10 +12,9 @@ import androidx.compose.ui.Modifier
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.components.BottomActionBar
-import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.components.ControlButton
+import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.components.BrainCoinsButton
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.components.GameTab
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.components.NotificationButton
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.components.TopActionBar
@@ -37,7 +36,7 @@ fun DashboardScreen(navController: NavController,  brainViewModel: BrainViewMode
                 horizontal =  24.dp,
                 vertical = 10.dp
             ).padding(paddings),
-                leftFunction = {ControlButton(brainViewModel = brainViewModel)},
+                leftFunction = {BrainCoinsButton(brainViewModel = brainViewModel)},
                 rightFunction = {NotificationButton()}
             )
             GameTab(modifier = Modifier.padding(vertical = 4.dp).fillMaxWidth(),

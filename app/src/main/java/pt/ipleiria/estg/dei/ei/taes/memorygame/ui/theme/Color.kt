@@ -23,7 +23,7 @@ val ColorSurface = Color.White
 val ColorBlack = Color.Black
 val ColorImageShadow = Color(0xFFfdc228)
 val ColorImageBlueShadow = Color(0xFF2DDEE0)
-val ColorImageYellowShadow = Color(0xD7E0EC65)
+val ColorImageYellowShadow = Color(0xD7F0FCCA)
 
 val ColorTextPrimary = Color(0xFF2c2e35)
 val ColorTextPrimaryVariant = ColorTextPrimary.copy(alpha = 0.7f)
