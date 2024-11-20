@@ -58,4 +58,11 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+
+    // Novos (especificados pelo usuário)
+    implementation("androidx.compose.ui:ui:1.7.5")                 // Compose UI
+    implementation("androidx.compose.ui:ui-tooling-preview:1.7.5") // Compose UI Tooling Preview
+    implementation("androidx.compose.material:material:1.7.5")     // Compose Material
+
 }

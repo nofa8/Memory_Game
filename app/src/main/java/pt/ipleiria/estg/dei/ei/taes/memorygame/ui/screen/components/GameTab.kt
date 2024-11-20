@@ -1,6 +1,7 @@
 package pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.components
 
 import BrainViewModel
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -26,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import pt.ipleiria.estg.dei.ei.taes.memorygame.R
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavController
 
 
@@ -50,6 +52,7 @@ fun GameTab(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = modifier
         ) {
+            val context = LocalContext.current
             Column(modifier = Modifier.customShadow(
                 color = Color(0x401FBAf6),
                 alpha = 0.15f,
@@ -95,11 +98,14 @@ fun GameTab(
                     onClick = {
 
 
-                        if(brainValue<=0){
-                        //diz ao user que nao tem moedas suficientes
+                        if(brainValue<=0 && selectedBoard != "3x4"){
+                            Toast.makeText(context, "Brains coins insufficient!!", Toast.LENGTH_SHORT).show()
                         }
                         else{
-                            brainViewModel.updateBrains(-1)
+                            if(selectedBoard != "3x4"){
+                                brainViewModel.updateBrains(-1)
+
+                            }
                             val (cardsRow, cardsColumn) = selectedBoard.split("x").map { it.toInt() }
                             navController.navigate("game/$cardsRow/$cardsColumn")
                         }

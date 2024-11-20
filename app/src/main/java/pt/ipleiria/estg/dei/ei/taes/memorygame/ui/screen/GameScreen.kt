@@ -1,6 +1,7 @@
 package pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen
 
 import BrainViewModel
+import android.widget.Toast
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
@@ -36,12 +37,18 @@ import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.theme.ColorBackground
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import kotlin.math.floor
+import androidx.navigation.NavController
+import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.PopUpEndGame
+
+
+
+
+import androidx.compose.ui.platform.LocalContext
 
 //
 
 @Composable
-fun GameScreen(cardsRow: Int, cardsColumn: Int, brainViewModel: BrainViewModel) {
+fun GameScreen(cardsRow: Int, cardsColumn: Int, brainViewModel: BrainViewModel, navController: NavController) {
 
     val cardCount = cardsColumn * cardsRow
     val cards = remember { AppData.getPairsOfCards(cardCount / 2) }
@@ -51,6 +58,8 @@ fun GameScreen(cardsRow: Int, cardsColumn: Int, brainViewModel: BrainViewModel) 
     var isClickable by remember { mutableStateOf(true) } // Track whether the game is clickable
     var elapsedTime by remember { mutableStateOf(0) } // Track elapsed time
     var isGameOver by remember { mutableStateOf(false) } // Track if the game is over
+    var popUpAlreadyOpened by remember { mutableStateOf(false) } // Track if the game is over
+
     var hintIndices: List<Int>? by remember { mutableStateOf(null) } // Estado de indices das cartas reveladas
 
     // Timer for elapsed time
@@ -61,17 +70,62 @@ fun GameScreen(cardsRow: Int, cardsColumn: Int, brainViewModel: BrainViewModel) 
                 elapsedTime++
             }
         }
-        else{ //pop up jogo acabou, o teu tempo foi x
-
+        else{
+            popUpAlreadyOpened = true;
         }
 
     }
+    val context = LocalContext.current
+
+    if (popUpAlreadyOpened) {
+        // Quando o jogo terminar, o estado isGameOver é verdadeiro e mostramos o popup
+        PopUpEndGame(
+            time = "${if (elapsedTime > 60) elapsedTime/60 else "00"}:${if (elapsedTime%60 < 10) "0"+elapsedTime%60 else elapsedTime%60}",
+            moves = moves.intValue,
+            score = calculateScore(elapsedTime, moves.intValue),
+            onTryAgain = {
+                // Navegar novamente para "game/{cardsRow}/{cardsColumn}"
+                if(brainViewModel.getBrainValue() > 0 || cardCount == 12){
+                    if(cardCount != 12){
+                        brainViewModel.updateBrains(-1)
+                    }
+                    navController.navigate("game/$cardsRow/$cardsColumn") {
+                        popUpTo("game/$cardsRow/$cardsColumn") { inclusive = true }
+                        // Remove a instância anterior de "game" da pilha para garantir reinício
+                    }
+                }
+                else{
+
+                    Toast.makeText(context, "Brains coins insufficient!!", Toast.LENGTH_SHORT).show()
+
+                    navController.navigate("dashboard")
+                }
+
+            },
+            onConfirm = {
+                // Navegar para o dashboard
+                navController.navigate("dashboard")
+            },
+            quitFunction = {
+                popUpAlreadyOpened = false;
+            }
+        )
+    }
+
+
+
+
 
 
 
     fun revealHint() {
         // Verificar se já existe uma carta revelada
         if(brainViewModel.getBrainValue()<=0){
+                Toast.makeText(context, "Brains coins insufficient!!", Toast.LENGTH_SHORT).show()
+
+                return
+        }
+        if( isGameOver == true || isClickable == false){
             return
         }
         brainViewModel.updateBrains(-1)
@@ -160,10 +214,10 @@ fun GameScreen(cardsRow: Int, cardsColumn: Int, brainViewModel: BrainViewModel) 
                 isClickable = true
             }
 
-            // Check if all cards are matched
-            if (matchedCards.size == cardCount) {
-                isGameOver = true
-            }
+            if(matchedCards.size == cardCount){
+                isGameOver = true}
+
+
         }
     }
 
@@ -186,6 +240,7 @@ fun GameScreen(cardsRow: Int, cardsColumn: Int, brainViewModel: BrainViewModel) 
                         onClick = { revealHint() }
                     )
                 }
+
             )
 
             // Display Elapsed Time
@@ -251,9 +306,20 @@ fun GameScreen(cardsRow: Int, cardsColumn: Int, brainViewModel: BrainViewModel) 
     }
 }
 
+fun calculateScore(timeSec: Int, moves: Int): Int {
+    val baseScore = 1000.0 // Pontuação inicial
+    val tempoBase = 60.0 // Tempo base (1 minuto)
+    val jogadasBase = 20.0 // Jogadas base (20 jogadas)
+    val ponderacaoTempo = 1.5 // Peso do tempo
+    val ponderacaoJogadas = 2.0 // Peso das jogadas
 
+    // Fórmula de cálculo
+    val divisor = 1 + (timeSec / tempoBase * ponderacaoTempo) + (moves / jogadasBase * ponderacaoJogadas)
+    val score = baseScore / divisor
 
-
+    // Retorna o score arredondado para inteiro
+    return score.toInt()
+}
 
 
 //// Helper function to return the correct resource ID based on card value

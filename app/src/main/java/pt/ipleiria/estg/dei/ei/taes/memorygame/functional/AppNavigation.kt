@@ -30,7 +30,7 @@ fun AppNavigation() {
             // Get the arguments from the backStackEntry
             val cardsRow = backStackEntry.arguments?.getInt("cardsRow") ?: 3 // Default value if no argument
             val cardsColumn = backStackEntry.arguments?.getInt("cardsColumn") ?: 4 // Default value if no argument
-            GameScreen(cardsRow, cardsColumn, brainViewModel)
+            GameScreen(cardsRow, cardsColumn, brainViewModel, navController)
         }
     }
 
