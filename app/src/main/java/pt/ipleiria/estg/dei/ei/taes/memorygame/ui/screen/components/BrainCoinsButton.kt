@@ -64,7 +64,7 @@ fun BrainCoinsButton(
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.brain),
-                    contentDescription = "Options",
+                    contentDescription = "BrainCoinsButton",
                     modifier = Modifier.size(34.dp)
                 )
             }

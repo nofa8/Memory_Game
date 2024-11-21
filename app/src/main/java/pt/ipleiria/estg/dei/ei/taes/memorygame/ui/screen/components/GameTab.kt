@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -41,8 +42,6 @@ fun GameTab(
      navController: NavController
 ) {
     var selectedBoard by remember { mutableStateOf("3x4") }
-
-
     Surface(
         modifier = modifier
             .padding(horizontal = 16.dp, vertical = 9.dp),
@@ -68,14 +67,14 @@ fun GameTab(
 
                     Image(
                         painter = painterResource(id = R.drawable.card_blue),
-                        contentDescription = text,
+                        contentDescription = "Card Left",
                         modifier = Modifier.weight(1f).padding(all = 5.dp)
                     )
 
 
                     Image(
                         painter = painterResource(id = R.drawable.card_blue),
-                        contentDescription = text,
+                        contentDescription = "Card Right",
                         modifier = Modifier.weight(1f).padding(all = 5.dp)
                     )
 
@@ -95,6 +94,12 @@ fun GameTab(
 
                 val brainValue = uiState.brainValue
                 Button(
+                    colors = ButtonColors(
+                        containerColor = Color(0xFFF7F8E3),
+                        contentColor = Color(0xFFFFFFFF),
+                        disabledContainerColor = Color(0xAAFFFFFF),
+                        disabledContentColor = Color(0xAAFFFFFF)
+                    ),
                     onClick = {
 
 

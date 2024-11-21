@@ -30,7 +30,6 @@ import kotlinx.coroutines.launch
 import pt.ipleiria.estg.dei.ei.taes.memorygame.R
 import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.CardControl
 import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.CardFile
-import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.components.BrainCoinsButton
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.components.HintButton
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.components.TopActionBar
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.theme.ColorBackground
@@ -38,7 +37,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.navigation.NavController
-import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.PopUpEndGame
+import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.components.PopUpEndGame
 import androidx.compose.ui.platform.LocalContext
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.components.BackButton
 
@@ -257,14 +256,14 @@ fun GameScreen(cardsRow: Int, cardsColumn: Int, brainViewModel: BrainViewModel, 
                             // Back of the card
                             Image(
                                 painter = painterResource(id = R.drawable.card_blue),
-                                contentDescription = "Card Back",
+                                contentDescription = "Card "+index,
                                 modifier = Modifier.fillMaxSize()
                             )
                         } else {
                             // Front of the card
                             Image(
                                 painter = painterResource(id = getCardImageResource(cardValue)),
-                                contentDescription = "Card Front",
+                                contentDescription = "Card "+cardValue,
                                 modifier = Modifier.fillMaxSize()
                             )
                         }

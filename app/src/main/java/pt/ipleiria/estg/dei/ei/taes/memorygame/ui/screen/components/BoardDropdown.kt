@@ -1,7 +1,7 @@
 package pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.components
 
 
-import androidx.compose.foundation.background
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuAnchorType
@@ -17,7 +17,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-
+import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.theme.ColorTextPrimary
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -42,17 +42,18 @@ fun BoardDropdown(
             label = { Text("Board") },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             colors = ExposedDropdownMenuDefaults.textFieldColors(
-                unfocusedIndicatorColor = Color.Black,
+                unfocusedIndicatorColor = ColorTextPrimary,
                 focusedIndicatorColor = Color.White,
-                focusedTextColor = Color.White,
-                unfocusedTextColor = Color.Black,
+                focusedTextColor = ColorTextPrimary,
+                unfocusedTextColor = ColorTextPrimary,
                 unfocusedContainerColor = Color(0xFFf5f5dc),
-                focusedContainerColor = Color.Gray.copy(alpha = 0.3f)
+                focusedContainerColor = Color(0xFFf5f5dc)
             ),
         )
         ExposedDropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false },
+            containerColor = Color(0xFFF6ECDC),
         ) {
             options.forEach { option ->
                 DropdownMenuItem(

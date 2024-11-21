@@ -75,7 +75,7 @@ fun HintButton(
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.tips_bulb),
-                    contentDescription = "Notifications",
+                    contentDescription = "Hints",
                     modifier = modifier
                         .size(50.dp)
                         .clip(CircleShape)
@@ -128,7 +128,7 @@ private fun BrainCoinInformation(
         ) {
             Image(
                 painter = painterResource(id = R.drawable.brain),
-                contentDescription = "BrainCoins",
+                contentDescription = "BrainCoinsInformation",
                 modifier = Modifier.size(24.dp)
             )
         }
