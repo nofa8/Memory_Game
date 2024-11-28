@@ -34,14 +34,14 @@ fun FilterTypeDropdown(
     ExposedDropdownMenuBox(
         expanded = expanded,
         onExpandedChange = { expanded = it },
-        modifier = modifier.width(120.dp)
+        modifier = modifier.width(150.dp)
     ) {
         TextField(
             value = selectedValue,
             onValueChange = {}, // Read-only field
             modifier = Modifier
                 .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable)
-                .width(120.dp),
+                ,
             readOnly = true,
             singleLine = true,
             label = {
