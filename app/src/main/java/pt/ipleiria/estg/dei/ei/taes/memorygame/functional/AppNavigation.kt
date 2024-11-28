@@ -10,6 +10,8 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.DashboardScreen
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.GameScreen
+import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.HistoryScreen
+import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.ProfileScreen
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.ScoreboardScreen
 
 @Composable
@@ -35,6 +37,12 @@ fun AppNavigation() {
         }
         composable("scoreboard"){
             ScoreboardScreen(navController, brainViewModel)
+        }
+        composable("profile"){
+            ProfileScreen(navController, brainViewModel)
+        }
+        composable("history"){
+            HistoryScreen(navController, brainViewModel)
         }
     }
 
