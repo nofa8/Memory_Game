@@ -28,7 +28,8 @@ fun BottomIcon(
     modifier: Modifier = Modifier,
     text: String,
     image: Int,
-    backgroundColor: Color // Custom Background Colors para customização extra
+    backgroundColor: Color, // Custom Background Colors para customização extra
+    onClick: () -> Unit
 ) {
     Column(
         modifier = modifier,
@@ -48,7 +49,7 @@ fun BottomIcon(
                     offsetY = 2.dp,
                     offsetX = 2.dp
                 )
-                .clickable { /* Handle Click */ },
+                .clickable { onClick() },
         ) {
             Box(
                 modifier = Modifier.fillMaxSize(),

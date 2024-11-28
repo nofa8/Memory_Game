@@ -263,7 +263,7 @@ fun GameScreen(cardsRow: Int, cardsColumn: Int, brainViewModel: BrainViewModel, 
                             // Front of the card
                             Image(
                                 painter = painterResource(id = getCardImageResource(cardValue)),
-                                contentDescription = "Card "+cardValue,
+                                contentDescription = "Card "+ index + " " +cardValue,
                                 modifier = Modifier.fillMaxSize()
                             )
                         }

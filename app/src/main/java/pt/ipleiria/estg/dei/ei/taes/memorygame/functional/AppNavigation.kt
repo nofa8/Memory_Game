@@ -10,6 +10,9 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.DashboardScreen
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.GameScreen
+import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.HistoryScreen
+import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.ProfileScreen
+import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.ScoreboardScreen
 
 @Composable
 fun AppNavigation() {
@@ -31,6 +34,15 @@ fun AppNavigation() {
             val cardsRow = backStackEntry.arguments?.getInt("cardsRow") ?: 3 // Default value if no argument
             val cardsColumn = backStackEntry.arguments?.getInt("cardsColumn") ?: 4 // Default value if no argument
             GameScreen(cardsRow, cardsColumn, brainViewModel, navController)
+        }
+        composable("scoreboard"){
+            ScoreboardScreen(navController, brainViewModel)
+        }
+        composable("profile"){
+            ProfileScreen(navController, brainViewModel)
+        }
+        composable("history"){
+            HistoryScreen(navController, brainViewModel)
         }
     }
 

@@ -44,7 +44,11 @@ fun DashboardScreen(navController: NavController,  brainViewModel: BrainViewMode
                 navController = navController,
                 brainViewModel = brainViewModel
             )
-            BottomActionBar()
+            BottomActionBar(
+                onScoresClick = { navController.navigate("scoreboard") },
+                onPlayClick = { navController.navigate("dashboard") },
+                onProfileClick = { navController.navigate("profile") }
+            )
 
         }
 

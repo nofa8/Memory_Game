@@ -1,5 +1,6 @@
 package pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.components
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -20,7 +21,10 @@ import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.theme.ColorBottomBackground
 @Composable
 fun BottomActionBar(
     modifier: Modifier = Modifier,
-    selected: Int = 2
+    selected: Int = 2,
+    onScoresClick: () -> Unit,
+    onPlayClick: () -> Unit,
+    onProfileClick: () -> Unit
 ) {
     Surface(
         modifier = modifier
@@ -39,17 +43,18 @@ fun BottomActionBar(
             BottomIcon(text = "Scores",
                 image = R.drawable.table,
                 backgroundColor = Color(0xFFE0F7EC),
-                modifier = Modifier.weight(1f))
+                modifier = Modifier.weight(1f),
+                onClick = onScoresClick)
             BottomIcon(text = "Play",
                 image = R.drawable.cards,
                 backgroundColor = Color(0xFFFFD7DA),
-                modifier = Modifier.weight(1f))
+                modifier = Modifier.weight(1f),
+                onClick = onPlayClick)
             BottomIcon(text = "Profile",
                 image = R.drawable.account_icon,
                 backgroundColor = Color(0xFFE6E6FA),
-                modifier = Modifier.weight(1f))
-
-
+                modifier = Modifier.weight(1f),
+                onClick = onProfileClick)
         }
     }
 }
