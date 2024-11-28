@@ -105,10 +105,10 @@ fun ScoreboardScreen(navController: NavController, brainViewModel: BrainViewMode
                 FilterTypeDropdown(
                     selectedValue = selectedType,
                     onOptionSelected = { selectedType = it },
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(2f)
                 )
 
-                Spacer(modifier = Modifier.weight(2f))
+                Spacer(modifier = Modifier.weight(1f))
 
                 FilterBoardDropdown(
                     selectedValue = selectedBoard,
