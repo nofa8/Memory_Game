@@ -2,15 +2,22 @@ package pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.delay
 import pt.ipleiria.estg.dei.ei.taes.memorygame.R
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.theme.ColorImageBlueShadow
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.theme.ColorSurface
@@ -19,6 +26,9 @@ import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.theme.ColorSurface
 fun NotificationButton(
     modifier: Modifier = Modifier
 ) {
+    // State to track popup visibility
+    var isPopupVisible by remember { mutableStateOf(false) }
+
     Box(
         modifier = Modifier
             .size(60.dp)
@@ -33,7 +43,8 @@ fun NotificationButton(
                 shadowRadius = 8.dp,
                 borderRadius = 48.dp,
                 offsetY = 3.dp
-            ),
+            )
+            .clickable(onClick = { isPopupVisible = true }), // Show popup on click
         contentAlignment = Alignment.Center,
     ) {
         Image(
@@ -42,7 +53,14 @@ fun NotificationButton(
             modifier = modifier
                 .size(50.dp)
                 .clip(CircleShape)
+        )
+    }
 
+    // Show the popup if `isPopupVisible` is true
+    if (isPopupVisible) {
+        PopUpNotification(
+
+            quitFunction = { isPopupVisible = false } // Close popup
         )
     }
 }

@@ -1,5 +1,6 @@
 package pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.components
 
+import BrainViewModel
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
