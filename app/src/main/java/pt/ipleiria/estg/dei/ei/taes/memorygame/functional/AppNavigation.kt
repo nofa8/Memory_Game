@@ -1,7 +1,9 @@
 package pt.ipleiria.estg.dei.ei.taes.memorygame.functional
 
 import BrainViewModel
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -11,6 +13,7 @@ import androidx.navigation.navArgument
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.DashboardScreen
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.GameScreen
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.HistoryScreen
+import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.LoginScreen
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.ProfileScreen
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.ScoreboardScreen
 
@@ -18,7 +21,7 @@ import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.ScoreboardScreen
 fun AppNavigation() {
     val navController = rememberNavController()
     val brainViewModel: BrainViewModel = viewModel()
-    NavHost(navController = navController, startDestination = "dashboard") {
+    NavHost(navController = navController, startDestination = "login") {
         composable("dashboard")
         {
             DashboardScreen(navController, brainViewModel)
@@ -44,6 +47,10 @@ fun AppNavigation() {
         composable("history"){
             HistoryScreen(navController, brainViewModel)
         }
+        composable("login"){
+            LoginScreen(  navController, Modifier.fillMaxSize(), true)
+        }
+
     }
 
 }

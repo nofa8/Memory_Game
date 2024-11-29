@@ -21,6 +21,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.ScoreEntry
+import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.calculateScore
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -124,7 +125,7 @@ fun HistoryTab(
                             color = softGrayText
                         )
                         HistoryCell(
-                            text = entry.scores.toString(),
+                            text = calculateScore(moves = entry.moves, timeSec =  entry.time.toInt() ).toString(),
                             modifier = Modifier
                                 .weight(1f)
                                 .padding(start = 8.dp),
@@ -143,6 +144,8 @@ fun HistoryTab(
         }
     }
 }
+
+
 
 @Composable
 private fun HistoryHeaderCell(

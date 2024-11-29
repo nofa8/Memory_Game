@@ -21,6 +21,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.ScoreEntry
+import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.calculateScore
 
 
 @Composable
@@ -107,7 +108,7 @@ fun ScoreTab(
                             color = softGrayText
                         )
                         ScoreCell(
-                            text = entry.scores.toString(),
+                            text =calculateScore(moves = entry.moves, timeSec =  entry.time.toInt() ).toString(),
                             modifier = Modifier.weight(0.8f),
                             color = softGrayText
                         )

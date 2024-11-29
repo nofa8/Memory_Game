@@ -39,6 +39,7 @@ import androidx.compose.runtime.setValue
 import androidx.navigation.NavController
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.components.PopUpEndGame
 import androidx.compose.ui.platform.LocalContext
+import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.calculateScore
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.components.BackButton
 
 //
@@ -278,21 +279,6 @@ fun GameScreen(cardsRow: Int, cardsColumn: Int, brainViewModel: BrainViewModel, 
             )
         }
     }
-}
-
-fun calculateScore(timeSec: Int, moves: Int): Int {
-    val baseScore = 1000.0 // Pontuação inicial
-    val tempoBase = 60.0 // Tempo base (1 minuto)
-    val jogadasBase = 20.0 // Jogadas base (20 jogadas)
-    val ponderacaoTempo = 1.5 // Peso do tempo
-    val ponderacaoJogadas = 2.0 // Peso das jogadas
-
-    // Fórmula de cálculo
-    val divisor = 1 + (timeSec / tempoBase * ponderacaoTempo) + (moves / jogadasBase * ponderacaoJogadas)
-    val score = baseScore / divisor
-
-    // Retorna o score arredondado para inteiro
-    return score.toInt()
 }
 
 

@@ -1,41 +1,50 @@
 package pt.ipleiria.estg.dei.ei.taes.memorygame.functional
 
+import com.google.gson.Gson
+import com.google.gson.JsonObject
+import com.google.gson.reflect.TypeToken
+import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.api.API
 import java.util.Date
 
 data class ScoreEntry(
+    val id: Int,
     val name: String,
     val time: String,
     val moves: Int,
-    val scores: Int,
     val boardSize: String,
     val date: Date
 )
 
 object ScoreDataRepository {
-    val sampleScores = listOf(
-        ScoreEntry("Player 1", "02:30", 45, 1200, "3x4", Date(2024 - 1900, 1 - 1, 30, 14, 30)),
-        ScoreEntry("Player 1", "02:40", 65, 1200, "3x4", Date(2024 - 1900, 1 - 1, 2, 15, 15)),
-        ScoreEntry("Player 1", "02:30", 45, 1200, "4x4", Date(2024 - 1900, 1 - 1, 3, 16, 0)),
-        ScoreEntry("Player 1", "03:15", 55, 900, "3x4", Date(2024 - 1900, 1 - 1, 4, 17, 45)),
-        ScoreEntry("Player 1", "01:45", 35, 1500, "4x4", Date(2024 - 1900, 1 - 1, 5, 18, 20)),
-        ScoreEntry("Player 1", "02:00", 40, 1400, "3x4", Date(2024 - 1900, 1 - 1, 6, 19, 10)),
-        ScoreEntry("Player 1", "01:30", 38, 1600, "3x4", Date(2024 - 1900, 1 - 1, 7, 20, 5)),
-        ScoreEntry("Player 1", "02:45", 50, 1100, "4x4", Date(2024 - 1900, 1 - 1, 8, 21, 50)),
-        ScoreEntry("Player 1", "01:20", 32, 1700, "3x4", Date(2024 - 1900, 1 - 1, 9, 22, 25)),
-        ScoreEntry("Player 1", "01:20", 33, 1700, "3x4", Date(2024 - 1900, 1 - 1, 10, 23, 0)),
-        ScoreEntry("Player 1", "01:55", 37, 1450, "6x6", Date(2024 - 1900, 1 - 1, 11, 13, 35)),
-        ScoreEntry("Player 1", "01:40", 36, 1550, "3x4", Date(2024 - 1900, 1 - 1, 12, 12, 10)),
-        ScoreEntry("Player 1", "01:35", 39, 1500, "3x4", Date(2024 - 1900, 1 - 1, 13, 14, 15)),
-        ScoreEntry("Player 2", "01:25", 33, 1650, "3x4", Date(2024 - 1900, 1 - 1, 14, 15, 5)),
-        ScoreEntry("Player 3", "01:50", 41, 1400, "6x6", Date(2024 - 1900, 1 - 1, 15, 16, 0)),
-        ScoreEntry("Player 4", "01:50", 41, 1400, "6x6", Date(2024 - 1900, 1 - 1, 16, 17, 30)),
-        ScoreEntry("Player 5", "01:50", 41, 1400, "6x6", Date(2024 - 1900, 1 - 1, 17, 18, 15)),
-        ScoreEntry("Player 6", "01:50", 41, 1400, "6x6", Date(2024 - 1900, 1 - 1, 18, 19, 45)),
-        ScoreEntry("Player 7", "01:35", 39, 1500, "6x6", Date(2024 - 1900, 1 - 1, 19, 20, 25)),
-        ScoreEntry("Player 8", "01:25", 33, 1650, "6x6", Date(2024 - 1900, 1 - 1, 20, 21, 10)),
-        ScoreEntry("Player 9", "01:50", 41, 1400, "3x4", Date(2024 - 1900, 1 - 1, 21, 22, 55)),
-        ScoreEntry("Player 10", "01:50", 41, 1400, "4x4", Date(2024 - 1900, 1 - 1, 22, 23, 45)),
-        ScoreEntry("Player 11", "01:50", 41, 1400, "4x4", Date(2024 - 1900, 1 - 1, 23, 13, 20)),
-        ScoreEntry("Player 12", "01:50", 41, 1400, "4x4", Date(2024 - 1900, 1 - 1, 24, 14, 40))
-    )
+    val scores: List<ScoreEntry> = try {
+        val jsonResponse = API.callApi(apiUrl = API.url+"/games", httpMethod = "GET")
+
+        // Parse the entire JSON object
+        val jsonObject = Gson().fromJson(jsonResponse, JsonObject::class.java)
+
+        // Extract the "data" array
+        val dataArray = jsonObject.getAsJsonArray("data")
+
+        // Convert the array to a list of ScoreEntry
+        val type = object : TypeToken<List<ScoreEntry>>() {}.type
+        Gson().fromJson(dataArray, type)
+    } catch (e: Exception) {
+        e.printStackTrace()
+        emptyList<ScoreEntry>()
+    }
+}
+
+fun calculateScore(timeSec: Int, moves: Int): Int {
+    val baseScore = 1000.0 // Pontuação inicial
+    val tempoBase = 60.0 // Tempo base (1 minuto)
+    val jogadasBase = 20.0 // Jogadas base (20 jogadas)
+    val ponderacaoTempo = 1.5 // Peso do tempo
+    val ponderacaoJogadas = 2.0 // Peso das jogadas
+
+    // Fórmula de cálculo
+    val divisor = 1 + (timeSec / tempoBase * ponderacaoTempo) + (moves / jogadasBase * ponderacaoJogadas)
+    val score = baseScore / divisor
+
+    // Retorna o score arredondado para inteiro
+    return score.toInt()
 }

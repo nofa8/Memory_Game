@@ -22,7 +22,7 @@ import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.theme.ColorBackground
 
 @Composable
 fun HistoryScreen(navController: NavController, brainViewModel: BrainViewModel) {
-    val playerScores = ScoreDataRepository.sampleScores.filter { it.name == "Player 1" }
+    val playerScores = ScoreDataRepository.scores.filter { it.name == "Madalena Gonçalves Barros Lopes Torres" }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),

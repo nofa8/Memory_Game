@@ -22,7 +22,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.ScoreDataRepository.sampleScores
+import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.ScoreDataRepository
 import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.ScoreEntry
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.components.BoardDropdown
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.components.BottomActionBar
@@ -48,10 +48,10 @@ fun ScoreboardScreen(navController: NavController, brainViewModel: BrainViewMode
 
     // Filter, sort, and select top 10 performances
     val topPerformances = remember(selectedBoard, selectedType) {
-        sampleScores
+        ScoreDataRepository.scores
             .filter { it.boardSize == selectedBoard }
             .filter {
-                if (selectedType == "Personal") it.name == "Player 1" // Only Player 1's scores
+                if (selectedType == "Personal") it.name == "Madalena Gonçalves Barros Lopes Torres" // Only Player 1's scores
                 else true
             }
             .sortedWith(

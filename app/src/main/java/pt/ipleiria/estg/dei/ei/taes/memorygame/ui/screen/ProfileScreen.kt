@@ -3,13 +3,17 @@ package pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen
 import BrainViewModel
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import androidx.navigation.NavController
+import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.api.API
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.components.BottomActionBar
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.components.BottomHistory
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.components.BrainCoinsButton
@@ -31,11 +35,18 @@ fun ProfileScreen(navController: NavController, brainViewModel: BrainViewModel){
             TopActionBar(modifier = Modifier.padding(
                 horizontal = 24.dp,
                 vertical = 10.dp
-            ).padding(paddings),
+            ).padding(paddings).weight(1f),
                 leftFunction = { BrainCoinsButton(brainViewModel = brainViewModel) },
                 rightFunction = { NotificationButton() }
             )
-            BottomHistory("History", navController)
+            if (API.token.isNotEmpty()){
+                BottomHistory("History", navController)
+            }else{
+                LoginScreen(navController, Modifier.fillMaxWidth())
+            }
+
+            Spacer(modifier = Modifier.weight(1f))
+
             BottomActionBar(
                 onScoresClick = { navController.navigate("scoreboard") },
                 onPlayClick = { navController.navigate("dashboard") },
