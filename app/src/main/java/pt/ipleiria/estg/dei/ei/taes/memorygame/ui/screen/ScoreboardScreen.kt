@@ -49,14 +49,14 @@ fun ScoreboardScreen(navController: NavController, brainViewModel: BrainViewMode
     // Filter, sort, and select top 10 performances
     val topPerformances = remember(selectedBoard, selectedType) {
         ScoreDataRepository.scores
-            .filter { it.boardSize == selectedBoard }
+            .filter { it.board == selectedBoard }
             .filter {
                 if (selectedType == "Personal") it.name == "Madalena Gonçalves Barros Lopes Torres" // Only Player 1's scores
                 else true
             }
             .sortedWith(
                 compareBy<ScoreEntry> { timeToSeconds(it.time) }
-                    .thenBy { it.moves }
+                    .thenBy { it.turns }
             )
             .take(10)
     }

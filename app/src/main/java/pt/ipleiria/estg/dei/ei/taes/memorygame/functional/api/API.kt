@@ -14,7 +14,7 @@ class API {
         // Function to handle all HTTP methods
 //        public val url = "http://api-dad-group-9-172.22.21.101.sslip.io/api/"
         // colocar o IP para permitir comunicação
-        public val url = "http://192.168.1.125:8085/api"
+        public val url = "http://10.0.2.2:8085/api"
         public var token = ""
         fun callApi(apiUrl: String, httpMethod: String, requestModel: Any? = null): String {
             val response = StringBuilder()
@@ -67,6 +67,7 @@ class API {
                 e.printStackTrace()
                 return e.message.toString()
             }
+            println("Response: ${response.toString()}")
 
             return response.toString()
         }

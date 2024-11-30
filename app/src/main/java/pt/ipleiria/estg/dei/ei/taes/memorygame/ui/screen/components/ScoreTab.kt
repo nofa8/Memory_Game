@@ -103,17 +103,17 @@ fun ScoreTab(
                             color = softGrayText
                         )
                         ScoreCell(
-                            text = entry.moves.toString(),
+                            text = entry.turns.toString(),
                             modifier = Modifier.weight(0.8f),
                             color = softGrayText
                         )
                         ScoreCell(
-                            text =calculateScore(moves = entry.moves, timeSec =  entry.time.toInt() ).toString(),
+                            text =calculateScore(moves = entry.turns, timeSec =  entry.time.toInt() ).toString(),
                             modifier = Modifier.weight(0.8f),
                             color = softGrayText
                         )
                         ScoreCell(
-                            text = entry.boardSize,
+                            text = entry.board,
                             modifier = Modifier.weight(1f),
                             color = softGrayText
                         )

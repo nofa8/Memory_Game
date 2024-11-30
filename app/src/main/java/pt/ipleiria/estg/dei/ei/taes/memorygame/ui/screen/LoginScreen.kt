@@ -15,6 +15,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -29,17 +30,23 @@ import com.google.gson.Gson
 import com.google.gson.JsonObject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.api.API
 
-
 @Composable
-fun LoginScreen(navController: NavController, modifier: Modifier = Modifier, start: Boolean = false) {
+fun LoginScreen(
+    navController: NavController,
+    modifier: Modifier = Modifier,
+    start: Boolean = false
+) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var isPasswordVisible by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
+    var loginMessage by remember { mutableStateOf<String?>(null) }
+    var loginSuccess by remember { mutableStateOf(false) }  // Track login success status
 
     Column(
         modifier = modifier
@@ -83,7 +90,6 @@ fun LoginScreen(navController: NavController, modifier: Modifier = Modifier, sta
             }
         )
 
-
         Spacer(modifier = Modifier.height(16.dp))
 
         // Error Message
@@ -95,13 +101,14 @@ fun LoginScreen(navController: NavController, modifier: Modifier = Modifier, sta
             )
         }
 
-        // Login Button
+        // Login Button with navigation
         Button(
             onClick = {
                 performLogin(username, password) { success, error ->
                     if (success) {
-                        // Navigate to the next screen or show success message
-                        navController.navigate("dashboard")
+                        // Show success message and trigger navigation after delay
+                        loginMessage = "Login Successful"
+                        loginSuccess = true
                     } else {
                         errorMessage = error // Display error message
                     }
@@ -113,7 +120,8 @@ fun LoginScreen(navController: NavController, modifier: Modifier = Modifier, sta
         }
 
         Spacer(modifier = Modifier.height(8.dp))
-        if (start){
+
+        if (start) {
             Button(
                 onClick = {
                     API.token = "" // Clear token for anonymous user
@@ -125,7 +133,26 @@ fun LoginScreen(navController: NavController, modifier: Modifier = Modifier, sta
             }
         }
 
+        // Show login success message if applicable
+        loginMessage?.let {
+            Text(
+                text = it,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(top = 16.dp)
+            )
+        }
 
+        // Use LaunchedEffect to navigate after a delay when login is successful
+        LaunchedEffect(loginSuccess) {
+            if (loginSuccess) {
+                delay(1000) // Wait for 1 second
+                if (start == false) {
+                    navController.navigate("profile")
+                } else {
+                    navController.navigate("dashboard")
+                }
+            }
+        }
     }
 }
 
@@ -134,8 +161,8 @@ fun performLogin(
     password: String,
     onResult: (success: Boolean, error: String?) -> Unit
 ) {
-    val apiUrl = "${API.url}/login"
-    val loginRequest = mapOf("username" to username, "password" to password)
+    val apiUrl = "${API.url}/auth/login"
+    val loginRequest = mapOf("email" to username, "password" to password)
 
     CoroutineScope(Dispatchers.IO).launch {
         try {

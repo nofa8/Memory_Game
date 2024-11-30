@@ -36,7 +36,7 @@ fun HistoryTab(
     val softGrayText = Color(0xFF666666)
 
     val dateFormat = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
-    val sortedScores = scores.sortedByDescending { it.date }
+    val sortedScores = scores.sortedByDescending { it.start_time }
 
     Surface(
         modifier = modifier
@@ -104,7 +104,7 @@ fun HistoryTab(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         HistoryCell(
-                            text = dateFormat.format(entry.date),
+                            text = dateFormat.format(entry.start_time),
                             modifier = Modifier
                                 .weight(2f)
                                 .padding(end = 8.dp),
@@ -118,21 +118,21 @@ fun HistoryTab(
                             color = softGrayText
                         )
                         HistoryCell(
-                            text = entry.moves.toString(),
+                            text = entry.turns.toString(),
                             modifier = Modifier
                                 .weight(1.2f)
                                 .padding(start = 8.dp),
                             color = softGrayText
                         )
                         HistoryCell(
-                            text = calculateScore(moves = entry.moves, timeSec =  entry.time.toInt() ).toString(),
+                            text = calculateScore(moves = entry.turns, timeSec =  entry.time.toInt() ).toString(),
                             modifier = Modifier
                                 .weight(1f)
                                 .padding(start = 8.dp),
                             color = softGrayText
                         )
                         HistoryCell(
-                            text = entry.boardSize,
+                            text = entry.board,
                             modifier = Modifier
                                 .weight(0.8f)
                                 .padding(start = 8.dp),
