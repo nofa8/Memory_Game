@@ -8,7 +8,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.api.API
-import java.util.Date
 
 //data class ScoreEntry(
 //    val id: Int,
@@ -32,7 +31,7 @@ data class ScoreEntry(
 )
 
 
-object ScoreDataRepository {
+object ScoreController {
     // Declare scores as a mutable list that will be populated asynchronously
     var scores: List<ScoreEntry> = emptyList()
 
@@ -46,7 +45,7 @@ object ScoreDataRepository {
     // Fetch scores from the API (suspend function)
     suspend fun fetchScores(): List<ScoreEntry> {
         return try {
-            // Call the API on a background thread using Dispatchers.IO
+
             val jsonResponse = withContext(Dispatchers.IO) {
                 API.callApi(apiUrl = API.url + "/games", httpMethod = "GET")
             }
@@ -54,10 +53,10 @@ object ScoreDataRepository {
             // Parse the entire JSON object
             val jsonObject = Gson().fromJson(jsonResponse, JsonObject::class.java)
 
-            // Extract the "data" array
+            // Extract the "data" array {"data": [{},..]
             val dataArray = jsonObject.getAsJsonArray("data")
 
-            // Convert the array to a list of ScoreEntry
+            // Convert the array to a list of ScoreEntry (ScoreEntry Should be equivalent to a "row")
             val type = object : TypeToken<List<ScoreEntry>>() {}.type
             Gson().fromJson(dataArray, type)
 
@@ -66,6 +65,9 @@ object ScoreDataRepository {
             emptyList() // Return an empty list if there is an error
         }
     }
+
+
+
 }
 
 

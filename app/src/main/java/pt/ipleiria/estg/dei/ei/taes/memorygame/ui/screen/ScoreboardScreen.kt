@@ -1,17 +1,13 @@
 package pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen
 
 import BrainViewModel
-import android.widget.Space
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
 import androidx.compose.runtime.Composable
@@ -22,9 +18,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.ScoreDataRepository
+import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.ScoreController
 import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.ScoreEntry
-import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.components.BoardDropdown
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.components.BottomActionBar
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.components.BrainCoinsButton
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.components.FilterBoardDropdown
@@ -48,7 +43,7 @@ fun ScoreboardScreen(navController: NavController, brainViewModel: BrainViewMode
 
     // Filter, sort, and select top 10 performances
     val topPerformances = remember(selectedBoard, selectedType) {
-        ScoreDataRepository.scores
+        ScoreController.scores
             .filter { it.board == selectedBoard }
             .filter {
                 if (selectedType == "Personal") it.name == "Madalena Gonçalves Barros Lopes Torres" // Only Player 1's scores

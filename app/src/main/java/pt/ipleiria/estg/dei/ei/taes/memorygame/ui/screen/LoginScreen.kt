@@ -4,13 +4,10 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Icon
 import androidx.compose.material3.Button
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -78,10 +75,18 @@ fun LoginScreen(
             label = { Text("Password") },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
-            visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+            visualTransformation = if (isPasswordVisible) {
+                VisualTransformation.None
+            } else {
+                PasswordVisualTransformation()
+            },
             trailingIcon = {
                 Text(
-                    text = if (isPasswordVisible) "Hide" else "Show",
+                    text = if (isPasswordVisible) {
+                        "Hide"
+                    } else {
+                        "Show"
+                    },
                     style = MaterialTheme.typography.bodySmall,
                     modifier = Modifier
                         .clickable { isPasswordVisible = !isPasswordVisible }
@@ -104,13 +109,22 @@ fun LoginScreen(
         // Login Button with navigation
         Button(
             onClick = {
-                performLogin(username, password) { success, error ->
-                    if (success) {
-                        // Show success message and trigger navigation after delay
-                        loginMessage = "Login Successful"
-                        loginSuccess = true
-                    } else {
-                        errorMessage = error // Display error message
+                errorMessage = ""
+                if (username.isEmpty() && password.isEmpty()){
+                    errorMessage = "Username and Password must be inputed"
+                }else if (username.isEmpty()){
+                    errorMessage = "Username must be inputed"
+                }else if (password.isEmpty()){
+                    errorMessage = "Password must be inputed"
+                }else{
+                    performLogin(username, password) { success, _ ->
+                        if (success) {
+                            // Show success message and trigger navigation after delay
+                            loginMessage = "Login Successful"
+                            loginSuccess = true
+                        } else {
+                            errorMessage = "Credentials not valid" // Display error message
+                        }
                     }
                 }
             },
@@ -175,7 +189,7 @@ fun performLogin(
             val token = jsonResponse["token"]?.asString
 
             if (!token.isNullOrEmpty()) {
-                API.token = token // Save token in API class
+                API.token = token // Save token in API class (for future api related requests that need token for identification)
                 withContext(Dispatchers.Main) {
                     onResult(true, null) // Notify success
                 }

@@ -12,7 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.ScoreDataRepository
+import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.ScoreController
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.components.BottomActionBar
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.components.BrainCoinsButton
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.components.HistoryTab
@@ -22,7 +22,7 @@ import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.theme.ColorBackground
 
 @Composable
 fun HistoryScreen(navController: NavController, brainViewModel: BrainViewModel) {
-    val playerScores = ScoreDataRepository.scores.filter { it.name == "Madalena Gonçalves Barros Lopes Torres" }
+    val playerScores = ScoreController.scores.filter { it.name == "Madalena Gonçalves Barros Lopes Torres" }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),

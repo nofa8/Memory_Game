@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
 data class BrainUiState(
-    val brainValue: Int = 20 // Valor inicial
+    val brainValue: Int = 0 // Valor inicial
 )
 
 class BrainViewModel : ViewModel() {
