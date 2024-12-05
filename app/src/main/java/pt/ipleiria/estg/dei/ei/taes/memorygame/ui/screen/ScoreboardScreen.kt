@@ -1,17 +1,13 @@
 package pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen
 
 import BrainViewModel
-import android.widget.Space
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
 import androidx.compose.runtime.Composable
@@ -22,9 +18,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.ScoreDataRepository.sampleScores
+import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.BoardData
+import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.ScoreController
 import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.ScoreEntry
-import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.components.BoardDropdown
+import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.UserData
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.components.BottomActionBar
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.components.BrainCoinsButton
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.components.FilterBoardDropdown
@@ -47,16 +44,17 @@ fun ScoreboardScreen(navController: NavController, brainViewModel: BrainViewMode
     }
 
     // Filter, sort, and select top 10 performances
-    val topPerformances = remember(selectedBoard, selectedType) {
-        sampleScores
-            .filter { it.boardSize == selectedBoard }
+    val topPerformances = remember(selectedBoard,  selectedType) {
+        var boardSelected = BoardData.boards.find({ "${it.cols}x${it.rows}" == selectedBoard })?.id
+        ScoreController.scores
+            .filter { it.board == boardSelected }
             .filter {
-                if (selectedType == "Personal") it.name == "Player 1" // Only Player 1's scores
+                if (selectedType == "Personal") it.name == UserData.user?.nickname // Only Player 1's scores
                 else true
             }
             .sortedWith(
-                compareBy<ScoreEntry> { timeToSeconds(it.time) }
-                    .thenBy { it.moves }
+                compareBy<ScoreEntry> { it.time }
+                    .thenBy { it.turns }
             )
             .take(10)
     }

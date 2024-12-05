@@ -34,18 +34,82 @@ import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.components.HintButton
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.components.TopActionBar
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.theme.ColorBackground
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.navigation.NavController
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.components.PopUpEndGame
 import androidx.compose.ui.platform.LocalContext
+import com.google.gson.Gson
+import com.google.gson.JsonObject
+import kotlinx.coroutines.withContext
+import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.Board
+import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.BoardData.boards
+import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.api.API
+import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.calculateScore
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.components.BackButton
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 //
 
+fun getCurrentFormattedTime(time: LocalDateTime): String {
+    val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+    return time.format(formatter)
+}
+fun addSecondsToDateTime(dateTime: LocalDateTime, secondsToAdd: Long): String {
+    val updatedDateTime = dateTime.plusSeconds(secondsToAdd) // Add seconds
+    val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+    return updatedDateTime.format(formatter)
+}
+
+
+data class GameResult(
+    val type: String,
+    val status: String,
+    val total_time: Int?,
+    val created_user_id: Int,
+    val winner_user_id: Int?,
+    val began_at: String,
+    val ended_at: String?,
+    val board_id: Int,
+    val total_turns_winner: Int?
+)
+
+
+suspend fun postGameResult(gameResult: GameResult?): Boolean {
+    if (gameResult == null) {
+        return false
+    }
+
+    val apiUrl = "${API.url}/games"
+    return try {
+        // Perform network call on IO thread
+        val response = withContext(Dispatchers.IO) {
+            API.callApi(
+                apiUrl = apiUrl,
+                httpMethod = "POST",
+                requestModel = gameResult
+            )
+        }
+
+        // Parse the response safely
+        val jsonResponse = Gson().fromJson(response, JsonObject::class.java)
+
+        // Optional: Debugging output
+        println(jsonResponse)
+
+        // Check if the "success" field is true
+        jsonResponse["success"]?.asBoolean == true
+    } catch (e: Exception) {
+        e.printStackTrace()
+        false
+    }
+}
+
 @Composable
 fun GameScreen(cardsRow: Int, cardsColumn: Int, brainViewModel: BrainViewModel, navController: NavController) {
-
+    val board: Board? = boards.find { it.cols == cardsColumn && it.rows == cardsRow }
     val cardCount = cardsColumn * cardsRow
     val cards = remember { CardControl.getPairsOfCards(cardCount / 2) }
     val flippedCards = remember { mutableStateListOf<Int>() }
@@ -55,8 +119,13 @@ fun GameScreen(cardsRow: Int, cardsColumn: Int, brainViewModel: BrainViewModel, 
     var elapsedTime by remember { mutableStateOf(0) } // Track elapsed time
     var isGameOver by remember { mutableStateOf(false) } // Track if the game is over
     var popUpAlreadyOpened by remember { mutableStateOf(false) } // Track if the game is over
-
+    val current_time = LocalDateTime.now()
     var hintIndices: List<Int>? by remember { mutableStateOf(null) } // Estado de indices das cartas reveladas
+
+    var gameResult by remember { mutableStateOf<GameResult?>(null) }
+
+
+
 
     // Timer for elapsed time
     LaunchedEffect(isGameOver) {
@@ -67,7 +136,21 @@ fun GameScreen(cardsRow: Int, cardsColumn: Int, brainViewModel: BrainViewModel, 
             }
         }
         else{
+            gameResult = GameResult(
+                type = "S",
+                status = "E", // "E" for Ended -> Only store the ones that end
+                total_time = elapsedTime, // in seconds
+                created_user_id = 1,
+                winner_user_id = null,
+                began_at = getCurrentFormattedTime(current_time),
+                ended_at = addSecondsToDateTime(current_time,  elapsedTime.toLong()),
+                board_id = board?.id ?: 1 , // Not supposed to have a null board, if so default board
+                total_turns_winner = moves.intValue
+            )
+
             popUpAlreadyOpened = true;
+
+            postGameResult(gameResult)
         }
 
     }
@@ -280,21 +363,6 @@ fun GameScreen(cardsRow: Int, cardsColumn: Int, brainViewModel: BrainViewModel, 
     }
 }
 
-fun calculateScore(timeSec: Int, moves: Int): Int {
-    val baseScore = 1000.0 // Pontuação inicial
-    val tempoBase = 60.0 // Tempo base (1 minuto)
-    val jogadasBase = 20.0 // Jogadas base (20 jogadas)
-    val ponderacaoTempo = 1.5 // Peso do tempo
-    val ponderacaoJogadas = 2.0 // Peso das jogadas
-
-    // Fórmula de cálculo
-    val divisor = 1 + (timeSec / tempoBase * ponderacaoTempo) + (moves / jogadasBase * ponderacaoJogadas)
-    val score = baseScore / divisor
-
-    // Retorna o score arredondado para inteiro
-    return score.toInt()
-}
-
 
 //// Helper function to return the correct resource ID based on card value
 fun getCardImageResource(annotation: String): Int {
@@ -304,4 +372,6 @@ fun getCardImageResource(annotation: String): Int {
     }
     return file.drawableRes
 }
+
+
 

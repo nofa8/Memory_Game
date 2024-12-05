@@ -20,7 +20,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.Board
+import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.BoardData
 import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.ScoreEntry
+import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.calculateScore
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -35,7 +38,7 @@ fun HistoryTab(
     val softGrayText = Color(0xFF666666)
 
     val dateFormat = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
-    val sortedScores = scores.sortedByDescending { it.date }
+    val sortedScores = scores.sortedByDescending { it.start_time }
 
     Surface(
         modifier = modifier
@@ -103,35 +106,35 @@ fun HistoryTab(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         HistoryCell(
-                            text = dateFormat.format(entry.date),
+                            text = dateFormat.format(entry.start_time),
                             modifier = Modifier
                                 .weight(2f)
                                 .padding(end = 8.dp),
                             color = softGrayText
                         )
                         HistoryCell(
-                            text = entry.time,
+                            text = entry.time.toString(),
                             modifier = Modifier
                                 .weight(1f)
                                 .padding(start = 8.dp, end = 8.dp),
                             color = softGrayText
                         )
                         HistoryCell(
-                            text = entry.moves.toString(),
+                            text = entry.turns.toString(),
                             modifier = Modifier
                                 .weight(1.2f)
                                 .padding(start = 8.dp),
                             color = softGrayText
                         )
                         HistoryCell(
-                            text = entry.scores.toString(),
+                            text = calculateScore(moves = entry.turns, timeSec =  entry.time.toInt() ).toString(),
                             modifier = Modifier
                                 .weight(1f)
                                 .padding(start = 8.dp),
                             color = softGrayText
                         )
                         HistoryCell(
-                            text = entry.boardSize,
+                            text = BoardData.boards[entry.board-1].cols.toString()+"x"+BoardData.boards[entry.board-1].rows.toString() ,
                             modifier = Modifier
                                 .weight(0.8f)
                                 .padding(start = 8.dp),
@@ -143,6 +146,8 @@ fun HistoryTab(
         }
     }
 }
+
+
 
 @Composable
 private fun HistoryHeaderCell(

@@ -9,9 +9,14 @@ import java.net.URL
 
 class API {
 
+
     companion object {
         // Function to handle all HTTP methods
-        fun callApi(apiUrl: String, token: String, httpMethod: String, requestModel: Any? = null): String {
+//        public val url = "http://api-dad-group-9-172.22.21.101.sslip.io/api"
+        // colocar o IP para permitir comunicação
+        public val url = "http://10.0.2.2:8085/api"
+        public var token = ""
+        fun callApi(apiUrl: String, httpMethod: String, requestModel: Any? = null): String {
             val response = StringBuilder()
 
             try {
@@ -22,7 +27,10 @@ class API {
                 // Set request headers for JSON format and authorization
                 connection.setRequestProperty("Content-Type", "application/json")
                 connection.setRequestProperty("Accept", "application/json")
-                connection.setRequestProperty("Authorization", "Bearer $token")
+                if (token.isNotEmpty()){
+                    connection.setRequestProperty("Authorization", "Bearer $token")
+
+                }
 
                 // Send request body for POST/PUT methods
                 if (httpMethod == "POST" || httpMethod == "PUT") {
@@ -59,6 +67,7 @@ class API {
                 e.printStackTrace()
                 return e.message.toString()
             }
+            println("Response: ${response.toString()}")
 
             return response.toString()
         }
