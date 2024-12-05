@@ -1,6 +1,7 @@
 package pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen
 
 import BrainUiState
+import BrainViewModel
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -64,7 +65,7 @@ fun LoginScreen(
         OutlinedTextField(
             value = username,
             onValueChange = { username = it },
-            label = { Text("Username") },
+            label = { Text("Username/Email") },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true
         )
@@ -117,6 +118,8 @@ fun LoginScreen(
                     errorMessage = "Username and Password must be inputed"
                 }else if (username.isEmpty()){
                     errorMessage = "Username must be inputed"
+                }else if (!"^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$".toRegex().matches(username)){
+                    errorMessage = "Username invalid!"
                 }else if (password.isEmpty()){
                     errorMessage = "Password must be inputed"
                 }else{
@@ -205,7 +208,7 @@ fun performLogin(
                 }
             } else {
                 withContext(Dispatchers.Main) {
-                    onResult(false, "Failed to retrieve token")
+                    onResult(false, "Credentials invalid!")
                 }
             }
         } catch (e: Exception) {
