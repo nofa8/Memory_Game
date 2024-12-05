@@ -48,7 +48,7 @@ fun AppNavigation() {
             HistoryScreen(navController, brainViewModel)
         }
         composable("login"){
-            LoginScreen(  navController, Modifier.fillMaxSize(), true)
+            LoginScreen(  navController, Modifier.fillMaxSize(), true, brainViewModel)
         }
 
     }

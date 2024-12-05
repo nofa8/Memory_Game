@@ -42,6 +42,7 @@ fun GameTab(
      navController: NavController
 ) {
     var selectedBoard by remember { mutableStateOf("3x4") }
+
     Surface(
         modifier = modifier
             .padding(horizontal = 16.dp, vertical = 9.dp),

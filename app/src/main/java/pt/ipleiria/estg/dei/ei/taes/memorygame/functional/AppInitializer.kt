@@ -9,6 +9,7 @@ class AppInitializer {
         fun initializeApp() {
             CoroutineScope(Dispatchers.IO).launch {
                 val success = BoardData.fetchBoards()
+
             }
         }
     }

@@ -1,5 +1,6 @@
 package pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen
 
+import BrainUiState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -30,13 +31,15 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.UserData
 import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.api.API
 
 @Composable
 fun LoginScreen(
     navController: NavController,
     modifier: Modifier = Modifier,
-    start: Boolean = false
+    start: Boolean = false,
+    brainViewModel: BrainViewModel
 ) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -160,6 +163,13 @@ fun LoginScreen(
         LaunchedEffect(loginSuccess) {
             if (loginSuccess) {
                 delay(1000) // Wait for 1 second
+
+                val userOk = UserData.fetchUser()
+                if (userOk){
+                    if (UserData.user!= null ){
+                        brainViewModel.updateBrains(UserData.user!!.brain_coins_balance)
+                    }
+                }
                 if (start == false) {
                     navController.navigate("profile")
                 } else {

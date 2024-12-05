@@ -21,12 +21,12 @@ data class ScoreEntry(
     val id: Int,
     val type: String,
     val status: String,
-    val time: String,
+    val time: Float,
     val creator: Int, // Represents the creator's ID
     val name: String, // Represents the creator's name
     val start_time: String,
     val end_time: String,
-    val board: String, // Updated to match the "3x4" or "6x6" string format
+    val board: Int, // Updated to match the "3x4" or "6x6" string format or not : /
     val turns: Int // Nullable, as `turns`
 )
 

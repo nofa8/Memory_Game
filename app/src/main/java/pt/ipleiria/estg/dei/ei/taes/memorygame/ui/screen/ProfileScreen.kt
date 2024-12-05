@@ -42,7 +42,7 @@ fun ProfileScreen(navController: NavController, brainViewModel: BrainViewModel){
             if (API.token.isNotEmpty()){
                 BottomHistory("History", navController)
             }else{
-                LoginScreen(navController, Modifier.fillMaxWidth())
+                LoginScreen(navController, Modifier.fillMaxWidth(), brainViewModel = brainViewModel)
             }
 
             Spacer(modifier = Modifier.weight(1f))

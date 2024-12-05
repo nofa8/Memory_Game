@@ -18,8 +18,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.BoardData
 import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.ScoreController
 import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.ScoreEntry
+import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.UserData
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.components.BottomActionBar
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.components.BrainCoinsButton
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.components.FilterBoardDropdown
@@ -42,15 +44,16 @@ fun ScoreboardScreen(navController: NavController, brainViewModel: BrainViewMode
     }
 
     // Filter, sort, and select top 10 performances
-    val topPerformances = remember(selectedBoard, selectedType) {
+    val topPerformances = remember(selectedBoard,  selectedType) {
+        var boardSelected = BoardData.boards.find({ "${it.cols}x${it.rows}" == selectedBoard })?.id
         ScoreController.scores
-            .filter { it.board == selectedBoard }
+            .filter { it.board == boardSelected }
             .filter {
-                if (selectedType == "Personal") it.name == "Madalena Gonçalves Barros Lopes Torres" // Only Player 1's scores
+                if (selectedType == "Personal") it.name == UserData.user?.nickname // Only Player 1's scores
                 else true
             }
             .sortedWith(
-                compareBy<ScoreEntry> { timeToSeconds(it.time) }
+                compareBy<ScoreEntry> { it.time }
                     .thenBy { it.turns }
             )
             .take(10)
