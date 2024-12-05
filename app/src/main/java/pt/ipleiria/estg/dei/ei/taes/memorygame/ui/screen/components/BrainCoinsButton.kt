@@ -26,6 +26,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import pt.ipleiria.estg.dei.ei.taes.memorygame.R
+import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.api.API
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.theme.ColorBrainButton
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.theme.ColorBrainCoinsNumber
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.theme.ColorSurface
@@ -72,14 +73,16 @@ fun BrainCoinsButton(
         }
         val uiState by brainViewModel.uiState.collectAsState()
         val brainValue = uiState.brainValue
-        BrainCoins(modifier = Modifier.absoluteOffset(y = (-9.5f).dp).zIndex(1f),brainValue)
+
+        if (API.token.isNotBlank()){
+            BrainCoins(modifier = Modifier.absoluteOffset(y = (-9.5f).dp).zIndex(1f),brainValue)
+        }
 
 
     }
 
 }
 
-//Todo: BrainCoins icon com quantidade de brain coins e botão "+" para ir para a página de compra futuramente
 @Composable
 private fun BrainCoins(
     modifier: Modifier = Modifier,
