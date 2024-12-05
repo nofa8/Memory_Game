@@ -72,8 +72,9 @@ fun BrainCoinsButton(
         }
         val uiState by brainViewModel.uiState.collectAsState()
         val brainValue = uiState.brainValue
-
         BrainCoins(modifier = Modifier.absoluteOffset(y = (-9.5f).dp).zIndex(1f),brainValue)
+
+
     }
 
 }

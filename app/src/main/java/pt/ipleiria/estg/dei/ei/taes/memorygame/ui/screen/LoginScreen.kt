@@ -117,13 +117,13 @@ fun LoginScreen(
                 }else if (password.isEmpty()){
                     errorMessage = "Password must be inputed"
                 }else{
-                    performLogin(username, password) { success, _ ->
+                    performLogin(username, password) { success, error ->
                         if (success) {
                             // Show success message and trigger navigation after delay
                             loginMessage = "Login Successful"
                             loginSuccess = true
                         } else {
-                            errorMessage = "Credentials not valid" // Display error message
+                            errorMessage = error // Display error message
                         }
                     }
                 }
@@ -200,7 +200,7 @@ fun performLogin(
             }
         } catch (e: Exception) {
             withContext(Dispatchers.Main) {
-                onResult(false, "Login failed: ${e.message}")
+                onResult(false, "Failed to connect to the server")
             }
         }
     }
