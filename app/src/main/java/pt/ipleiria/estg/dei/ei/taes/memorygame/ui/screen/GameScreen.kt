@@ -292,10 +292,17 @@ fun GameScreen(cardsRow: Int, cardsColumn: Int, brainViewModel: BrainViewModel, 
                 }
                 ) },
                 rightFunction = {
-                    HintButton(
-                        brainViewModel = brainViewModel,
-                        onClick = { revealHint() }
-                    )
+                    if (API.token.isNotBlank()){
+                        HintButton(
+                            brainViewModel = brainViewModel,
+                            onClick = { revealHint() }
+                        )
+                    }else{
+                        HintButton(
+                            brainViewModel = brainViewModel,
+                            onClick = {  }
+                        )
+                    }
                 }
 
             )

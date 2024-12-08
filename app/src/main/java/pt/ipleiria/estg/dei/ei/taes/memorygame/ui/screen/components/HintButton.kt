@@ -28,6 +28,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import pt.ipleiria.estg.dei.ei.taes.memorygame.R
+import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.api.API
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.theme.ColorBackground
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.theme.ColorBrainCoinsNumber
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.theme.ColorImageYellowShadow
@@ -64,7 +65,12 @@ fun HintButton(
                         shape = CircleShape
                     )
                     .customShadow(
-                        color = ColorImageYellowShadow,
+                        color = if (API.token.isNotBlank()){
+                            ColorImageYellowShadow
+                        }else{
+                            ColorTextPrimary
+                        }
+                            ,
                         alpha = 0.55f,
                         shadowRadius = 8.dp,
                         borderRadius = 48.dp,
@@ -75,7 +81,12 @@ fun HintButton(
                 contentAlignment = Alignment.Center,
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.tips_bulb),
+                    painter = if (API.token.isNotBlank()){
+                        painterResource(id = R.drawable.tips_bulb)
+                    }else{
+                        painterResource(id = R.drawable.tips_bulb_dead)
+                    }
+                    ,
                     contentDescription = "Hints",
                     modifier = modifier
                         .size(50.dp)
@@ -84,8 +95,10 @@ fun HintButton(
                 )
             }
         }
+        if (API.token.isNotBlank()){
+            BrainCoinInformation(brainViewModel = brainViewModel, modifier = Modifier.absoluteOffset(y = (-6.5f).dp).zIndex(1f))
 
-        BrainCoinInformation(brainViewModel = brainViewModel, modifier = Modifier.absoluteOffset(y = (-6.5f).dp).zIndex(1f))
+        }
 
     }
 }
