@@ -99,7 +99,7 @@ fun ScoreTab(
                             fontWeight = FontWeight.SemiBold
                         )
                         ScoreCell(
-                            text = entry.time.toString(),
+                            text = entry.total_time.toString(),
                             modifier = Modifier.weight(1f),
                             color = softGrayText
                         )
@@ -109,7 +109,7 @@ fun ScoreTab(
                             color = softGrayText
                         )
                         ScoreCell(
-                            text =calculateScore(moves = entry.turns, timeSec =  entry.time.toInt() ).toString(),
+                            text =calculateScore(moves = entry.turns, timeSec =  entry.total_time.toInt() ).toString(),
                             modifier = Modifier.weight(0.8f),
                             color = softGrayText
                         )

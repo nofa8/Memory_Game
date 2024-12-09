@@ -1,35 +1,56 @@
 package pt.ipleiria.estg.dei.ei.taes.memorygame.functional.api
 
+import android.content.Context
+import androidx.security.crypto.EncryptedSharedPreferences
+import androidx.security.crypto.MasterKeys
 import com.google.gson.Gson
+import com.google.gson.JsonObject
+import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.User
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.io.OutputStreamWriter
 import java.net.HttpURLConnection
 import java.net.URL
 
-class API {
-
-
+class API private constructor(context: Context) {
     companion object {
-        // Function to handle all HTTP methods
-//        public val url = "http://api-dad-group-9-172.22.21.101.sslip.io/api"
-        // colocar o IP para permitir comunicação
-        public val url = "http://10.0.2.2:8085/api"
-        public var token = ""
+        private var instance: API? = null
+        private const val PREFS_NAME = "auth_preferences"
+        private const val TOKEN_KEY = "auth_token"
+
+        // The token is stored in memory (as a singleton)
+        var token: String = ""
+            private set
+        public var url: String = "http://10.0.2.2:8085/api"
+        //"http://api-dad-group-9-172.22.21.101.sslip.io/api"
+        var TOKEN_VALIDATION_ENDPOINT = "$url/users/me"
+
+
+        // Access the singleton API instance and load the token
+        fun getInstance(context: Context): API {
+            if (instance == null) {
+                instance = API(context.applicationContext)
+                instance?.loadToken()  // Load token only once when the instance is created
+            }
+            return instance!!
+        }
+
+
+
+
         fun callApi(apiUrl: String, httpMethod: String, requestModel: Any? = null): String {
             val response = StringBuilder()
 
             try {
                 val url = URL(apiUrl)
                 val connection = url.openConnection() as HttpURLConnection
-                connection.requestMethod = httpMethod // Set the HTTP method (GET, POST, PUT, DELETE)
+                connection.requestMethod = httpMethod
 
                 // Set request headers for JSON format and authorization
                 connection.setRequestProperty("Content-Type", "application/json")
                 connection.setRequestProperty("Accept", "application/json")
-                if (token.isNotEmpty()){
+                if (token.isNotBlank()) {
                     connection.setRequestProperty("Authorization", "Bearer $token")
-
                 }
 
                 // Send request body for POST/PUT methods
@@ -72,4 +93,42 @@ class API {
             return response.toString()
         }
     }
+
+    private val encryptedPreferences by lazy {
+        val masterKeyAlias = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC)
+        EncryptedSharedPreferences.create(
+            PREFS_NAME,
+            masterKeyAlias,
+            context,
+            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+        )
+    }
+
+    // Function to load token from EncryptedSharedPreferences once
+    public fun loadToken() {
+        if (token.isBlank()) {
+            token = encryptedPreferences.getString(TOKEN_KEY, "").toString()
+        }
+    }
+
+    fun fetchUserData(): User? {
+        return try {
+            val jsonResponse = callApi(apiUrl = TOKEN_VALIDATION_ENDPOINT, httpMethod = "GET")
+            val jsonObject = Gson().fromJson(jsonResponse, JsonObject::class.java)
+            val data = jsonObject.getAsJsonObject("data")
+            Gson().fromJson(data, User::class.java) // Parse response into User object
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null // Return null if the token is invalid or the request fails
+        }
+    }
+
+    // Function to save token
+    fun saveToken(tokener: String) {
+        encryptedPreferences.edit().putString(TOKEN_KEY, tokener).apply()
+        token = tokener
+    }
+
+
 }

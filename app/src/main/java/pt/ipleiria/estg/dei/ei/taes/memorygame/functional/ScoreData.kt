@@ -3,25 +3,20 @@ package pt.ipleiria.estg.dei.ei.taes.memorygame.functional
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import com.google.gson.reflect.TypeToken
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.api.API
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.update
 
-//data class ScoreEntry(
-//    val id: Int,
-//    val name: String,
-//    val time: String,
-//    val moves: Int,
-//    val boardSize: String,
-//    val date: Date
-//)
+
+
 data class ScoreEntry(
     val id: Int,
     val type: String,
     val status: String,
-    val time: Float,
+    val total_time: Float,
     val creator: Int, // Represents the creator's ID
     val name: String, // Represents the creator's name
     val start_time: String,
@@ -31,44 +26,59 @@ data class ScoreEntry(
 )
 
 
-object ScoreController {
-    // Declare scores as a mutable list that will be populated asynchronously
-    var scores: List<ScoreEntry> = emptyList()
 
-    init {
-        // Initialize the scores list asynchronously
-        CoroutineScope(Dispatchers.IO).launch {
-            scores = fetchScores()  // Call suspend function to fetch data
-        }
-    }
+
+object ScoreController {
+    // Use StateFlow for reactive updates
+    private val _scores = MutableStateFlow<List<ScoreEntry>>(emptyList())
+    val scores: StateFlow<List<ScoreEntry>> = _scores
+
+    private val _history = MutableStateFlow<List<ScoreEntry>>(emptyList())
+    val history: StateFlow<List<ScoreEntry>> = _history
 
     // Fetch scores from the API (suspend function)
     suspend fun fetchScores(): List<ScoreEntry> {
         return try {
-
             val jsonResponse = withContext(Dispatchers.IO) {
                 API.callApi(apiUrl = API.url + "/games", httpMethod = "GET")
             }
-
-            // Parse the entire JSON object
             val jsonObject = Gson().fromJson(jsonResponse, JsonObject::class.java)
-
-            // Extract the "data" array {"data": [{},..]
             val dataArray = jsonObject.getAsJsonArray("data")
-
-            // Convert the array to a list of ScoreEntry (ScoreEntry Should be equivalent to a "row")
             val type = object : TypeToken<List<ScoreEntry>>() {}.type
             Gson().fromJson(dataArray, type)
-
         } catch (e: Exception) {
             e.printStackTrace()
-            emptyList() // Return an empty list if there is an error
+            emptyList()
         }
     }
 
+    suspend fun fetchHistory(): List<ScoreEntry> {
+        return try {
+            val jsonResponse = withContext(Dispatchers.IO) {
+                API.callApi(apiUrl = API.url + "/indexHistoryTAES", httpMethod = "GET")
+            }
+            val jsonObject = Gson().fromJson(jsonResponse, JsonObject::class.java)
+            val dataArray = jsonObject.getAsJsonArray("data")
+            val type = object : TypeToken<List<ScoreEntry>>() {}.type
+            Gson().fromJson(dataArray, type)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            emptyList()
+        }
+    }
 
+    // Update scores and history
+    suspend fun refreshScores() {
+        val newScores = fetchScores()
+        _scores.update { newScores }
+    }
 
+    suspend fun refreshHistory() {
+        val newHistory = fetchHistory()
+        _history.update { newHistory }
+    }
 }
+
 
 
 fun calculateScore(timeSec: Int, moves: Int): Int {

@@ -61,6 +61,10 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
     implementation("com.google.code.gson:gson:2.11.0")
 
+
+    // EncryptedSharedPreferences for secure token storage
+    implementation("androidx.security:security-crypto:1.1.0-alpha06")
+
     // Novos (especificados pelo usuário)
     implementation("androidx.compose.ui:ui:1.7.5")                 // Compose UI
     implementation("androidx.compose.ui:ui-tooling-preview:1.7.5") // Compose UI Tooling Preview

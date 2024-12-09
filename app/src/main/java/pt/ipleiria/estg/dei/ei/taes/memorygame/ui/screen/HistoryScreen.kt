@@ -9,9 +9,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+
 import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.ScoreController
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.components.BottomActionBar
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.components.BrainCoinsButton
@@ -19,10 +22,20 @@ import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.components.HistoryTab
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.components.NotificationButton
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.components.TopActionBar
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.theme.ColorBackground
-
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 @Composable
 fun HistoryScreen(navController: NavController, brainViewModel: BrainViewModel) {
-    val playerScores = ScoreController.scores.filter { it.name == "Madalena Gonçalves Barros Lopes Torres" }
+    val playerScores by ScoreController.scores.collectAsState()
+    val playerHistory by ScoreController.history.collectAsState()
+
+    // Side effect to refresh data
+    LaunchedEffect(Unit) {
+        ScoreController.refreshScores()
+        ScoreController.refreshHistory()
+    }
+
+
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),

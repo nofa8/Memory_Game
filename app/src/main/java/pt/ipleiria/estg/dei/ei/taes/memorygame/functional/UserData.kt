@@ -20,7 +20,7 @@ data class User(
 object UserData {
     private val apiUrl = "${API.url}/users/me"
     var user: User? = null
-        private set
+        public set
 
 
 

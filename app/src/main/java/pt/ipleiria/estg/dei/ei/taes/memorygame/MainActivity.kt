@@ -7,6 +7,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.lifecycle.viewmodel.compose.viewModel
 import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.AppInitializer
 import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.AppNavigation
+import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.api.API
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.DashboardScreen
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.theme.MemoryGameTheme
 
@@ -14,12 +15,14 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContent {
-            MemoryGameTheme {
-                AppNavigation() // Start the app with the navigation system
-            }
 
+        AppInitializer.initializeApp(this) { isAuthenticated ->
+            setContent {
+                MemoryGameTheme {
+                    AppNavigation(isAuthenticated) // Pass authentication status to navigation
+                }
+            }
         }
-        AppInitializer.initializeApp()
+
     }
 }
