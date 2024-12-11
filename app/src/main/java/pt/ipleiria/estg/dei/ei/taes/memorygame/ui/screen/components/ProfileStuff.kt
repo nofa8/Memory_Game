@@ -37,7 +37,7 @@ fun ProfileStuff(
                 disabledContentColor = Color(0xAAFFFFFF)
             ),
             onClick = {
-                if (naviagateTo == "login"){
+                if (naviagateTo == "profile"){
                     API.getInstance(context).clearToken()
                 }
                 navController.navigate(naviagateTo)

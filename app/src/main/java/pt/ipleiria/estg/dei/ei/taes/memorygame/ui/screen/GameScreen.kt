@@ -99,8 +99,7 @@ suspend fun postGameResult(gameResult: GameResult?): Boolean {
         // Optional: Debugging output
         println(jsonResponse)
 
-        // Check if the "success" field is true
-        jsonResponse["success"]?.asBoolean == true
+        jsonResponse["is_personal_top_time"] != null
     } catch (e: Exception) {
         e.printStackTrace()
         false

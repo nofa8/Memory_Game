@@ -3,8 +3,12 @@ package pt.ipleiria.estg.dei.ei.taes.memorygame.functional
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.ViewModel
-import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.Notification
-
+data class Notification(
+    val title: String,
+    val message: String,
+    val timestamp: String,
+    var isRead: Boolean = false
+)
 class NotificationsViewModel : ViewModel() {
     private val _notifications = mutableStateListOf(
         Notification("Compra Concluída", "Você comprou 500 moedas com sucesso.", "2024-11-28 10:45", false),

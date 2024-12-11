@@ -50,6 +50,14 @@ fun LoginScreen(
     var loginMessage by remember { mutableStateOf<String?>(null) }
     var loginSuccess by remember { mutableStateOf(false) }  // Track login success status
     var context = LocalContext.current
+
+
+    LaunchedEffect(API.token != "" && UserData.user != null) {
+        if (UserData.user != null && !loginSuccess){
+            navController.navigate("dashboard")
+        }
+    }
+
     Column(
         modifier = modifier
             .padding(16.dp),

@@ -6,6 +6,7 @@ import androidx.security.crypto.MasterKeys
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.User
+import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.UserData
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.io.OutputStreamWriter
@@ -115,6 +116,7 @@ class API private constructor(context: Context) {
     fun clearToken() {
         encryptedPreferences.edit().remove(TOKEN_KEY).apply()  // Remove the token from preferences
         token = ""  // Clear the token in memory
+        UserData.updateUser(null)
     }
 
     fun fetchUserData(): User? {

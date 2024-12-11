@@ -16,6 +16,7 @@ class MainActivity : ComponentActivity() {
         AppInitializer.initializeApp(this) { isAuthenticated ->
             setContent {
                 MemoryGameTheme {
+                    println(isAuthenticated)
                     AppNavigation(isAuthenticated)
                 }
             }

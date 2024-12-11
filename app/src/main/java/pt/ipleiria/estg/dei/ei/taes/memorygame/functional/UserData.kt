@@ -19,11 +19,15 @@ data class User(
 
 object UserData {
     private val apiUrl = "${API.url}/users/me"
+
+    // Mutable user property. Public setter allows you to change it from outside the object.
     var user: User? = null
-        public set
+        private set  // Prevent external modification directly, but can be set internally.
 
-
-
+    /**
+     * Fetch the user data from the API.
+     * @return Boolean - Returns true if successful, false if failed.
+     */
     suspend fun fetchUser(): Boolean {
         return try {
             // Fetch the data using the API
@@ -31,19 +35,25 @@ object UserData {
                 API.callApi(apiUrl = apiUrl, httpMethod = "GET")
             }
 
-            // Parse the JSON response
+            // Parse the JSON response to extract the user data
             val jsonObject = Gson().fromJson(jsonResponse, JsonObject::class.java)
             val dataObject = jsonObject.getAsJsonObject("data")
 
-            // Convert JSON array into a list of Board objects
+            // Convert the JSON object into a User object
             user = Gson().fromJson(dataObject, User::class.java)
-
 
             true // Return true on success
         } catch (e: Exception) {
             e.printStackTrace()
-            user = null // Reset to an empty list on failure
+            user = null // Reset to null on failure
             false // Return false on failure
         }
+    }
+
+    /**
+     * Optionally, you can create a method to allow modifying the user from outside, if needed.
+     */
+    fun updateUser(newUser: User?) {
+        user = newUser
     }
 }
