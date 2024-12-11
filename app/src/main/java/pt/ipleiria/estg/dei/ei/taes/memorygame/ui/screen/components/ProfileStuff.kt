@@ -11,15 +11,20 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.api.API
 
 @Composable
-fun BottomHistory(
+fun ProfileStuff(
     text: String,
-    navController: NavController
+    navController: NavController,
+    naviagateTo: String
 ) {
+    val context = LocalContext.current
+
     Row(
         modifier = Modifier.padding(horizontal = 90.dp, vertical = 16.dp),
     ) {
@@ -32,7 +37,10 @@ fun BottomHistory(
                 disabledContentColor = Color(0xAAFFFFFF)
             ),
             onClick = {
-                navController.navigate("history")
+                if (naviagateTo == "login"){
+                    API.getInstance(context).clearToken()
+                }
+                navController.navigate(naviagateTo)
             },
             modifier = Modifier.fillMaxWidth().height(70.dp),
 
