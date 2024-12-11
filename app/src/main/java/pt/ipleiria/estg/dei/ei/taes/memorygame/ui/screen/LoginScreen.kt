@@ -1,7 +1,7 @@
 package pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen
 
-import BrainUiState
 import BrainViewModel
+import android.content.Context
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -24,6 +24,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavController
 import com.google.gson.Gson
 import com.google.gson.JsonObject
@@ -48,7 +49,7 @@ fun LoginScreen(
     var errorMessage by remember { mutableStateOf<String?>(null) }
     var loginMessage by remember { mutableStateOf<String?>(null) }
     var loginSuccess by remember { mutableStateOf(false) }  // Track login success status
-
+    var context = LocalContext.current
     Column(
         modifier = modifier
             .padding(16.dp),
@@ -123,7 +124,7 @@ fun LoginScreen(
                 }else if (password.isEmpty()){
                     errorMessage = "Password must be inputed"
                 }else{
-                    performLogin(username, password) { success, error ->
+                    performLogin(username, password, context) { success, error ->
                         if (success) {
                             // Show success message and trigger navigation after delay
                             loginMessage = "Login Successful"
@@ -132,6 +133,7 @@ fun LoginScreen(
                             errorMessage = error // Display error message
                         }
                     }
+
                 }
             },
             modifier = Modifier.fillMaxWidth()
@@ -144,7 +146,7 @@ fun LoginScreen(
         if (start) {
             Button(
                 onClick = {
-                    API.token = "" // Clear token for anonymous user
+
                     navController.navigate("dashboard") // Proceed to app without login
                 },
                 modifier = Modifier.fillMaxWidth()
@@ -186,7 +188,9 @@ fun LoginScreen(
 fun performLogin(
     username: String,
     password: String,
-    onResult: (success: Boolean, error: String?) -> Unit
+    context: Context,
+    onResult: (success: Boolean, error: String?) -> Unit,
+
 ) {
     val apiUrl = "${API.url}/auth/login"
     val loginRequest = mapOf("email" to username, "password" to password)
@@ -202,7 +206,9 @@ fun performLogin(
             val token = jsonResponse["token"]?.asString
 
             if (!token.isNullOrEmpty()) {
-                API.token = token // Save token in API class (for future api related requests that need token for identification)
+                val api = API.getInstance(context) // Get the API singleton instance
+                api.saveToken(token)
+                // Save token in API class (for future api related requests that need token for identification)
                 withContext(Dispatchers.Main) {
                     onResult(true, null) // Notify success
                 }
