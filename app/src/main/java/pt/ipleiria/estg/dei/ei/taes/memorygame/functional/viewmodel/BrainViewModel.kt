@@ -4,9 +4,14 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.UserData
 
 data class BrainUiState(
-    var brainValue: Int = 0 // Valor inicial
+    var brainValue: Int = if (UserData.user  != null) {
+        UserData.user!!.brain_coins_balance
+    }else{
+        0
+    }
 )
 
 class BrainViewModel : ViewModel() {
