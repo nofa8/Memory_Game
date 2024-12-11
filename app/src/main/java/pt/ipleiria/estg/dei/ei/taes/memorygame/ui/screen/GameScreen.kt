@@ -82,7 +82,7 @@ suspend fun postGameResult(gameResult: GameResult?): Boolean {
         return false
     }
 
-    val apiUrl = "${API.url}/games"
+    val apiUrl = "${API.url}/gamesTAES"
     return try {
         // Perform network call on IO thread
         val response = withContext(Dispatchers.IO) {

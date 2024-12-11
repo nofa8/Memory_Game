@@ -106,10 +106,15 @@ class API private constructor(context: Context) {
     }
 
     // Function to load token from EncryptedSharedPreferences once
-    public fun loadToken() {
+    fun loadToken() {
         if (token.isBlank()) {
             token = encryptedPreferences.getString(TOKEN_KEY, "").toString()
         }
+    }
+    // Function to clear token from EncryptedSharedPreferences
+    fun clearToken() {
+        encryptedPreferences.edit().remove(TOKEN_KEY).apply()  // Remove the token from preferences
+        token = ""  // Clear the token in memory
     }
 
     fun fetchUserData(): User? {
