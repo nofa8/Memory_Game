@@ -1,3 +1,5 @@
+package pt.ipleiria.estg.dei.ei.taes.memorygame.functional
+
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
@@ -20,16 +22,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import okhttp3.Response
-import okhttp3.WebSocket
-import okhttp3.WebSocketListener
 import org.json.JSONException
 import org.json.JSONObject
 import pt.ipleiria.estg.dei.ei.taes.memorygame.R
-import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.BoardData
-import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.Notification
-import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.NotificationsViewModel
-import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.UserData
 import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.api.API
 import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.api.TokenRefresher
 import java.util.concurrent.TimeUnit
@@ -78,10 +73,10 @@ class AppInitializer {
                             Log.e("Permission", "Context is not an Activity. Cannot request permission.")
                         }
                     } else {
-                        setupWebSocket(context, notificationsViewModel)
+                        WebSocketConnectionManager.connect(context, notificationsViewModel)
                     }
                 } else {
-                    setupWebSocket(context, notificationsViewModel)
+                    WebSocketConnectionManager.connect(context, notificationsViewModel)
                 }
 
                 withContext(Dispatchers.Main) {
@@ -90,78 +85,8 @@ class AppInitializer {
             }
         }
 
-        private fun setupWebSocket(context: Context, notificationsViewModel: NotificationsViewModel) {
-            val websocketUrl = "ws://10.0.2.2:8080"
-            val client = OkHttpClient.Builder()
-                .readTimeout(0, TimeUnit.MILLISECONDS)
-                .build()
-
-            val request = Request.Builder().url(websocketUrl).build()
-
-            val webSocketListener = object : WebSocketListener() {
-                override fun onOpen(webSocket: WebSocket, response: Response) {
-                    Log.i("WebSocket", "Connected to $websocketUrl")
-                }
-
-                override fun onMessage(webSocket: WebSocket, text: String) {
-                    handleWebSocketMessage(text, context)
-                }
-
-                override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
-                    Log.e("WebSocket", "Connection failed: ${t.message}")
-                    Handler(Looper.getMainLooper()).postDelayed({
-                        setupWebSocket(context, notificationsViewModel)
-                    }, 5000)
-                }
-
-                override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
-                    Log.i("WebSocket", "Connection closed: $code $reason")
-                }
-            }
-
-            val webSocket = client.newWebSocket(request, webSocketListener)
-            client.dispatcher.executorService.shutdown()
-        }
-
-        private fun handleWebSocketMessage(text: String, context: Context) {
-            try {
-                val eventData = JSONObject(text)
-                val event = eventData.optString("event", null)
-                val data = eventData.optJSONObject("data")
-                if (event == null || data == null) {
-                    Log.e("WebSocket", "Malformed JSON data received: $text")
-                    return
-                }
-
-                if (event == "GlobalBroadcastTop") {
-                    val playerName = data.getJSONObject("player").getString("name")
-                    val board = data.getString("board")
-                    val type = data.getString("type")
-                    val custom = data.getInt("custom")
-
-                    Handler(Looper.getMainLooper()).post {
-                        val newNotification = Notification(
-                            title = "New Top Score!",
-                            message = "Player $playerName achieved a new top score on board $board ($type: $custom)",
-                            timestamp = System.currentTimeMillis().toString(),
-                            isRead = false
-                        )
-
-                        notificationsViewModel.notifications.add(0, newNotification)
-                        showNotification(
-                            context,
-                            "New Top Score!",
-                            "Player $playerName achieved a new top score on board $board ($type: $custom)"
-                        )
-                    }
-                }
-            } catch (e: JSONException) {
-                Log.e("WebSocket", "Error parsing message: ${e.message}")
-            }
-        }
-
         @SuppressLint("MissingPermission")
-        private fun showNotification(context: Context, title: String, message: String) {
+        fun showNotification(context: Context, title: String, message: String) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 val channel = NotificationChannel(
                     "default",
@@ -189,12 +114,120 @@ class AppInitializer {
             if (requestCode == REQUEST_CODE_NOTIFICATION_PERMISSION) {
                 if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     Log.d("Permission", "Notification permission granted.")
-                    setupWebSocket(context, notificationsViewModel)
+                    WebSocketConnectionManager.connect(context, notificationsViewModel)
                 } else {
                     Log.d("Permission", "Notification permission denied.")
                     Toast.makeText(context, "Notification permission denied", Toast.LENGTH_SHORT).show()
                 }
             }
         }
+    }
+}
+
+object WebSocketConnectionManager {
+
+    private const val TAG = "WebSocketManager"
+//    private const val WEB_SOCKET_URL = "ws://10.0.2.2:8080"
+    private const val WEB_SOCKET_URL = "ws://ws-dad-group-9-172.22.21.101.sslip.io"
+    private val client: OkHttpClient = OkHttpClient.Builder()
+        .readTimeout(0, TimeUnit.MILLISECONDS)
+        .build()
+    public var webSocket: okhttp3.WebSocket? = null
+
+    fun connect(context: Context, notificationsViewModel: NotificationsViewModel) {
+        val request = Request.Builder().url(WEB_SOCKET_URL).build()
+
+        webSocket = client.newWebSocket(request, object : okhttp3.WebSocketListener() {
+            override fun onOpen(webSocket: okhttp3.WebSocket, response: okhttp3.Response) {
+                Log.i(TAG, "WebSocket connected to $WEB_SOCKET_URL")
+            }
+
+            override fun onMessage(webSocket: okhttp3.WebSocket, text: String) {
+                handleWebSocketMessage(text, context, notificationsViewModel)
+            }
+
+            override fun onFailure(webSocket: okhttp3.WebSocket, t: Throwable, response: okhttp3.Response?) {
+                Log.e(TAG, "WebSocket connection failed: ${t.message}")
+                Handler(Looper.getMainLooper()).postDelayed({
+                    connect(context, notificationsViewModel)
+                }, 5000)
+            }
+
+            override fun onClosed(webSocket: okhttp3.WebSocket, code: Int, reason: String) {
+                Log.i(TAG, "WebSocket closed: $code $reason")
+            }
+        })
+    }
+
+    private fun handleWebSocketMessage(text: String, context: Context, notificationsViewModel: NotificationsViewModel) {
+        try {
+            val eventData = JSONObject(text)
+            val event = eventData.optString("event", null)
+            val data = eventData.optJSONObject("data")
+
+            if (event == null || data == null) {
+                Log.e(TAG, "Malformed JSON data received: $text")
+                return
+            }
+
+            when (event) {
+                "loginTAES" -> {
+                    val user = data.optJSONObject("user")
+                    if (user != null) {
+                        val userId = user.optString("id", null)
+                        Log.i(TAG, "User logged in with ID: $userId")
+                    }
+                }
+
+                "logoutTAES" -> {
+                    val user = data.optJSONObject("user")
+                    if (user != null) {
+                        val userId = user.optString("id", null)
+                        Log.i(TAG, "User logged out with ID: $userId")
+                    }
+                }
+
+                "transactionTAES" -> {
+                    val user = data.optJSONObject("user")
+                    val message = data.optString("message")
+                    if (user != null && message != null) {
+                        Log.i(TAG, "Transaction received for user: ${user.optString("id")}, message: $message")
+                        AppInitializer.showNotification(context, "Transaction", message)
+                    }
+                }
+
+                "globalRecord" -> {
+                    val message = data.optString("message")
+                    if (message != null) {
+                        Log.i(TAG, "Global broadcast message: $message")
+                        Handler(Looper.getMainLooper()).post {
+                            AppInitializer.showNotification(context, "Global Broadcast", message)
+                        }
+                    }
+                }
+
+                "personalRecord" -> {
+                    val message = data.optString("message")
+                    if (message != null) {
+                        Log.i(TAG, "Personal message: $message")
+                        Handler(Looper.getMainLooper()).post {
+                            AppInitializer.showNotification(context, "Personal Message", message)
+                        }
+                    }
+                }
+
+                else -> {
+                    Log.w(TAG, "Unhandled WebSocket event: $event")
+                }
+            }
+        } catch (e: JSONException) {
+            Log.e(TAG, "Error parsing WebSocket message: ${e.message}")
+        }
+    }
+
+
+    fun disconnect() {
+        webSocket?.close(1000, "Connection closed by client")
+        client.dispatcher.executorService.shutdown()
     }
 }

@@ -1,6 +1,7 @@
 package pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen
 
 import BrainViewModel
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -43,8 +44,10 @@ import androidx.compose.ui.platform.LocalContext
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import kotlinx.coroutines.withContext
+import org.json.JSONObject
 import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.Board
 import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.BoardData.boards
+import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.WebSocketConnectionManager
 import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.api.API
 import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.calculateScore
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.components.BackButton
@@ -62,6 +65,7 @@ fun addSecondsToDateTime(dateTime: LocalDateTime, secondsToAdd: Long): String {
     val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
     return updatedDateTime.format(formatter)
 }
+
 
 
 data class GameResult(
@@ -96,14 +100,54 @@ suspend fun postGameResult(gameResult: GameResult?): Boolean {
         // Parse the response safely
         val jsonResponse = Gson().fromJson(response, JsonObject::class.java)
 
-        // Optional: Debugging output
-        println(jsonResponse)
+        // Debugging output
+        Log.d("API Response", "Response JSON: $jsonResponse")
 
-        jsonResponse["is_personal_top_time"] != null
+        // Access specific fields
+        val isPersonalTopTime = jsonResponse.get("is_personal_top_time")?.asBoolean ?: false
+        val isPersonalTopTurn = jsonResponse.get("is_personal_top_turns")?.asBoolean ?: false
+        val isGlobalTopTurn = jsonResponse.get("is_top_turns")?.asBoolean ?: false
+        val isGlobalTopTime = jsonResponse.get("is_top_time")?.asBoolean ?: false
+
+        val webSocket = WebSocketConnectionManager.webSocket
+
+        // Example logic based on the values
+        if (isPersonalTopTime) {
+
+        }
+        if (isPersonalTopTurn){
+
+        }
+        if (isGlobalTopTurn) {
+            if (webSocket != null){
+                webSocket.send(
+                    JSONObject().apply {
+                        put("data", JSONObject().apply {
+                            put("message", "New global best turn count!")
+                        })
+                    }.toString()
+                )
+            }
+        }
+        if (isGlobalTopTime){
+            if (webSocket != null){
+                webSocket.send(
+                    JSONObject().apply {
+                        put("data", JSONObject().apply {
+                            put("message", "New global best time!")
+                        })
+                    }.toString()
+                )
+            }
+        }
+
+        // Return whether the "is_personal_top_time" key exists
+        jsonResponse.has("is_personal_top_time")
     } catch (e: Exception) {
-        e.printStackTrace()
+        Log.e("API Error", "Failed to parse response: ${e.message}")
         false
     }
+
 }
 
 @Composable

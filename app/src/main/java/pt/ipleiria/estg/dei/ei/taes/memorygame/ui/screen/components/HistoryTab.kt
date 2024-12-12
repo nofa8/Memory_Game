@@ -12,6 +12,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -37,7 +38,6 @@ fun HistoryTab(
     val softGrayText = Color(0xFF666666)
 
     val dateFormat = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
-    val sortedScores = scores.sortedByDescending { it.start_time }
 
     Surface(
         modifier = modifier
@@ -91,54 +91,60 @@ fun HistoryTab(
                     color = darkGrayText
                 )
             }
-
-            LazyColumn {
-                itemsIndexed(sortedScores) { index, entry ->
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(
-                                color = if (index % 2 == 0) Color.White
-                                else lightGrayBackground
+            if (scores.isEmpty()){
+                Text("No scores available")
+            }else {
+                LazyColumn {
+                    itemsIndexed(scores) { index, entry ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(
+                                    color = if (index % 2 == 0) Color.White
+                                    else lightGrayBackground
+                                )
+                                .padding(vertical = 8.dp, horizontal = 12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            HistoryCell(
+                                text = (entry.start_time),
+                                modifier = Modifier
+                                    .weight(2f)
+                                    .padding(end = 8.dp),
+                                color = softGrayText
                             )
-                            .padding(vertical = 8.dp, horizontal = 12.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        HistoryCell(
-                            text = dateFormat.format(entry.start_time),
-                            modifier = Modifier
-                                .weight(2f)
-                                .padding(end = 8.dp),
-                            color = softGrayText
-                        )
-                        HistoryCell(
-                            text = entry.total_time.toString(),
-                            modifier = Modifier
-                                .weight(1f)
-                                .padding(start = 8.dp, end = 8.dp),
-                            color = softGrayText
-                        )
-                        HistoryCell(
-                            text = entry.turns.toString(),
-                            modifier = Modifier
-                                .weight(1.2f)
-                                .padding(start = 8.dp),
-                            color = softGrayText
-                        )
-                        HistoryCell(
-                            text = calculateScore(moves = entry.turns, timeSec =  entry.total_time.toInt() ).toString(),
-                            modifier = Modifier
-                                .weight(1f)
-                                .padding(start = 8.dp),
-                            color = softGrayText
-                        )
-                        HistoryCell(
-                            text = BoardData.boards[entry.board-1].cols.toString()+"x"+BoardData.boards[entry.board-1].rows.toString() ,
-                            modifier = Modifier
-                                .weight(0.8f)
-                                .padding(start = 8.dp),
-                            color = softGrayText
-                        )
+                            HistoryCell(
+                                text = entry.total_time.toString(),
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .padding(start = 8.dp, end = 8.dp),
+                                color = softGrayText
+                            )
+                            HistoryCell(
+                                text = entry.turns.toString(),
+                                modifier = Modifier
+                                    .weight(1.2f)
+                                    .padding(start = 8.dp),
+                                color = softGrayText
+                            )
+                            HistoryCell(
+                                text = calculateScore(
+                                    moves = entry.turns,
+                                    timeSec = entry.total_time.toInt()
+                                ).toString(),
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .padding(start = 8.dp),
+                                color = softGrayText
+                            )
+                            HistoryCell(
+                                text = BoardData.boards[entry.board - 1].cols.toString() + "x" + BoardData.boards[entry.board - 1].rows.toString(),
+                                modifier = Modifier
+                                    .weight(0.8f)
+                                    .padding(start = 8.dp),
+                                color = softGrayText
+                            )
+                        }
                     }
                 }
             }

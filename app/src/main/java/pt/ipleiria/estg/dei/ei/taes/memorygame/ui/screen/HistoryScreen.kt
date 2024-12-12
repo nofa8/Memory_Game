@@ -26,8 +26,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 @Composable
 fun HistoryScreen(navController: NavController, brainViewModel: BrainViewModel) {
-    val playerScores by ScoreController.scores.collectAsState()
-    val playerHistory by ScoreController.history.collectAsState()
+    val playerScores by ScoreController.scores.collectAsState(initial = emptyList())
+    val playerHistory by ScoreController.history.collectAsState(initial = emptyList())
+
 
     // Side effect to refresh data
     LaunchedEffect(Unit) {
