@@ -1,6 +1,7 @@
 package pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen
 
 import BrainViewModel
+import android.content.Context
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.animation.core.animateFloatAsState
@@ -35,7 +36,6 @@ import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.components.HintButton
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.components.TopActionBar
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.theme.ColorBackground
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.navigation.NavController
@@ -44,11 +44,13 @@ import androidx.compose.ui.platform.LocalContext
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import kotlinx.coroutines.withContext
-import org.json.JSONObject
 import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.Board
+import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.BoardData
 import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.BoardData.boards
-import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.WebSocketConnectionManager
+import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.UserData
 import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.api.API
+import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.api.NotificationHelper
+import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.api.WebSocketManager
 import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.calculateScore
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.components.BackButton
 import java.time.LocalDateTime
@@ -81,8 +83,9 @@ data class GameResult(
 )
 
 
-suspend fun postGameResult(gameResult: GameResult?): Boolean {
+suspend fun postGameResult(gameResult: GameResult?, current: Context): Boolean {
     if (gameResult == null) {
+        Log.e("API Error", "Game result is null.")
         return false
     }
 
@@ -100,55 +103,57 @@ suspend fun postGameResult(gameResult: GameResult?): Boolean {
         // Parse the response safely
         val jsonResponse = Gson().fromJson(response, JsonObject::class.java)
 
-        // Debugging output
+        // Debugging output for the response
         Log.d("API Response", "Response JSON: $jsonResponse")
 
-        // Access specific fields
-        val isPersonalTopTime = jsonResponse.get("is_personal_top_time")?.asBoolean ?: false
-        val isPersonalTopTurn = jsonResponse.get("is_personal_top_turns")?.asBoolean ?: false
-        val isGlobalTopTurn = jsonResponse.get("is_top_turns")?.asBoolean ?: false
-        val isGlobalTopTime = jsonResponse.get("is_top_time")?.asBoolean ?: false
+        // Safely access specific fields with null checks
+        val isPersonalTopTime = jsonResponse.get("is_personal_top_time")?.asBoolean == true
+        val isPersonalTopTurn = jsonResponse.get("is_personal_top_turns")?.asBoolean == true
+        val isGlobalTopTurn = jsonResponse.get("is_top_turns")?.asBoolean == true
+        val isGlobalTopTime = jsonResponse.get("is_top_time")?.asBoolean == true
 
-        val webSocket = WebSocketConnectionManager.webSocket
+        // WebSocket connection handling
+        val webSocket = WebSocketManager
 
-        // Example logic based on the values
-        if (isPersonalTopTime) {
-
+        if (isPersonalTopTime){
+            NotificationHelper.showNotification(
+                context = current,  // Pass context of your activity or application
+                title = "Personal Top Time",
+                message = "You got a new Personal Top Turns in ${BoardData.boards[gameResult.board_id-1].cols}x${BoardData.boards[gameResult.board_id-1].rows}"
+            )
         }
-        if (isPersonalTopTurn){
-
+        if(isPersonalTopTurn){
+            NotificationHelper.showNotification(
+                context = current,  // Pass context of your activity or application
+                title = "Personal Top Turns",
+                message = "You got a new Personal Top Turns in ${BoardData.boards[gameResult.board_id-1].cols}x${BoardData.boards[gameResult.board_id-1].rows}"
+            )
         }
+
+        // Handle global top turn and time announcements
         if (isGlobalTopTurn) {
-            if (webSocket != null){
-                webSocket.send(
-                    JSONObject().apply {
-                        put("data", JSONObject().apply {
-                            put("message", "New global best turn count!")
-                        })
-                    }.toString()
-                )
-            }
+            val user = UserData.user
+            webSocket.emitBroadcast("${user!!.nickname} has gotten into the Global Top Turns in ${BoardData.boards[gameResult.board_id-1].cols}x${BoardData.boards[gameResult.board_id-1].rows}")
         }
-        if (isGlobalTopTime){
-            if (webSocket != null){
-                webSocket.send(
-                    JSONObject().apply {
-                        put("data", JSONObject().apply {
-                            put("message", "New global best time!")
-                        })
-                    }.toString()
-                )
-            }
+
+        if (isGlobalTopTime) {
+            val user = UserData.user
+            webSocket.emitBroadcast("${user!!.nickname} has gotten into the Global Top Time in ${BoardData.boards[gameResult.board_id-1].cols}x${BoardData.boards[gameResult.board_id-1].rows}")
         }
+
+        // Log for further debugging
+        Log.d("API Response", "Personal Top Time: $isPersonalTopTime, Personal Top Turns: $isPersonalTopTurn")
+        Log.d("API Response", "Global Top Time: $isGlobalTopTime, Global Top Turns: $isGlobalTopTurn")
 
         // Return whether the "is_personal_top_time" key exists
         jsonResponse.has("is_personal_top_time")
     } catch (e: Exception) {
-        Log.e("API Error", "Failed to parse response: ${e.message}")
+        // Enhanced error logging
+        Log.e("API Error", "Failed to post game result: ${e.message}", e)
         false
     }
-
 }
+
 
 @Composable
 fun GameScreen(cardsRow: Int, cardsColumn: Int, brainViewModel: BrainViewModel, navController: NavController) {
@@ -168,7 +173,7 @@ fun GameScreen(cardsRow: Int, cardsColumn: Int, brainViewModel: BrainViewModel, 
     var gameResult by remember { mutableStateOf<GameResult?>(null) }
 
 
-
+    val current = LocalContext.current
 
     // Timer for elapsed time
     LaunchedEffect(isGameOver) {
@@ -193,7 +198,7 @@ fun GameScreen(cardsRow: Int, cardsColumn: Int, brainViewModel: BrainViewModel, 
 
             popUpAlreadyOpened = true;
 
-            postGameResult(gameResult)
+            postGameResult(gameResult, current)
         }
 
     }

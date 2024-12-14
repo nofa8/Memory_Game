@@ -33,6 +33,10 @@ class NotificationsViewModel : ViewModel() {
             }
         }
     }
+    fun addNotification(title: String, message: String) {
+        val timestamp = getCurrentFormattedTime()
+        _notifications.add(Notification(title, message, timestamp))
+    }
 
     fun getCurrentFormattedTime(): String {
         val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
