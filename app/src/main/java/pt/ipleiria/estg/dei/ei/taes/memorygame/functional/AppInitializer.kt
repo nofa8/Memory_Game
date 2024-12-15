@@ -22,11 +22,12 @@ import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.api.WebSocketManager
 class AppInitializer {
     companion object {
         private const val REQUEST_CODE_NOTIFICATION_PERMISSION = 1001
-        var notificationsViewModel = NotificationsViewModel()
+        lateinit var notificationsViewModel: NotificationsViewModel
 
-        fun initializeApp(context: Context, onInitializationComplete: (isAuthenticated: Boolean) -> Unit) {
+        fun initializeApp(notificationsViewModels: NotificationsViewModel ,context: Context, onInitializationComplete: (isAuthenticated: Boolean) -> Unit) {
             CoroutineScope(Dispatchers.IO).launch {
                 // Initialize boards and API
+                notificationsViewModel =  notificationsViewModels
                 val boardsLoaded = BoardData.fetchBoards()
                 val api = API.getInstance(context)
                 api.loadToken()
@@ -36,7 +37,6 @@ class AppInitializer {
                         UserData.updateUser(it)
                         TokenRefresher.start(context) { errorMessage ->
                             Log.e("TokenRefresher", "Error refreshing token: $errorMessage")
-                            Toast.makeText(context, "Session expired. Please log in again.", Toast.LENGTH_LONG).show()
                             onInitializationComplete(false)
                         }
                         true
@@ -63,12 +63,12 @@ class AppInitializer {
                     } else {
                         NotificationHelper.notificationView = notificationsViewModel
 
-                        WebSocketManager.connect()
+                        WebSocketManager.initializeSocket()
                     }
                 } else {
                     NotificationHelper.notificationView = notificationsViewModel
 
-                    WebSocketManager.connect()
+                    WebSocketManager.initializeSocket()
                 }
 
                 withContext(Dispatchers.Main) {
@@ -84,7 +84,7 @@ class AppInitializer {
                 if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     Log.d("Permission", "Notification permission granted.")
                     NotificationHelper.notificationView = notificationsViewModel
-                    WebSocketManager.connect()
+                    WebSocketManager.initializeSocket()
                 } else {
                     Log.d("Permission", "Notification permission denied.")
                     Toast.makeText(context, "Notification permission denied", Toast.LENGTH_SHORT).show()
