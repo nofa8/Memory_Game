@@ -8,10 +8,13 @@ import com.google.gson.JsonObject
 import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.User
 import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.UserData
 import java.io.BufferedReader
+import java.io.IOException
 import java.io.InputStreamReader
 import java.io.OutputStreamWriter
 import java.net.HttpURLConnection
+import java.net.MalformedURLException
 import java.net.URL
+import java.nio.charset.Charset
 
 class API private constructor(context: Context) {
     companion object {
@@ -36,9 +39,6 @@ class API private constructor(context: Context) {
             return instance!!
         }
 
-
-
-
         fun callApi(apiUrl: String, httpMethod: String, requestModel: Any? = null): String {
             val response = StringBuilder()
 
@@ -46,15 +46,12 @@ class API private constructor(context: Context) {
                 val url = URL(apiUrl)
                 val connection = url.openConnection() as HttpURLConnection
                 connection.requestMethod = httpMethod
-
-                // Set request headers for JSON format and authorization
                 connection.setRequestProperty("Content-Type", "application/json")
                 connection.setRequestProperty("Accept", "application/json")
                 if (token.isNotBlank()) {
                     connection.setRequestProperty("Authorization", "Bearer $token")
                 }
 
-                // Send request body for POST/PUT methods
                 if (httpMethod == "POST" || httpMethod == "PUT") {
                     connection.doOutput = true
                     requestModel?.let {
@@ -66,18 +63,18 @@ class API private constructor(context: Context) {
                     }
                 }
 
-                // Handle the response
                 val responseCode = connection.responseCode
-                if (responseCode == HttpURLConnection.HTTP_OK || responseCode == HttpURLConnection.HTTP_CREATED) {
-                    BufferedReader(InputStreamReader(connection.inputStream, "utf-8")).use { br ->
-                        var responseLine: String?
-                        while (br.readLine().also { responseLine = it } != null) {
-                            response.append(responseLine?.trim())
-                        }
+                val charset = connection.contentType?.substringAfter("charset=", "utf-8") ?: "utf-8"
+
+
+                if (responseCode in 200..299) {
+                    connection.inputStream.use { inputStream ->
+                        val responseBytes = inputStream.readBytes()  // Read the entire response as bytes
+                        response.append(String(responseBytes, Charset.defaultCharset()))  // Convert bytes to string using the charset
                     }
-                } else {
-                    // Handle error response
-                    BufferedReader(InputStreamReader(connection.errorStream, "utf-8")).use { br ->
+                }
+                else {
+                    BufferedReader(InputStreamReader(connection.errorStream ?: connection.inputStream, charset)).use { br ->
                         var responseLine: String?
                         while (br.readLine().also { responseLine = it } != null) {
                             response.append(responseLine?.trim())
@@ -85,15 +82,50 @@ class API private constructor(context: Context) {
                     }
                     println("Error Response Code: $responseCode, Message: ${connection.responseMessage}")
                 }
-            } catch (e: Exception) {
+            } catch (e: MalformedURLException) {
+                println("Invalid URL: $apiUrl")
                 e.printStackTrace()
-                return e.message.toString()
+                return "Invalid URL"
+            } catch (e: IOException) {
+                println("Network Error: ${e.message}")
+                e.printStackTrace()
+                return "Network Error"
+            } catch (e: Exception) {
+                println("Unexpected Error: ${e.message}")
+                e.printStackTrace()
+                return "Unexpected Error"
             }
-            println("Response: ${response.toString()}")
+            var cena = response
+            var imbalance = areBracesBalanced(cena.toString())
+            if (imbalance != 0 && imbalance != -1){
+                while (imbalance != 0){
+                    imbalance--
+                    cena.append("}")
+                }
+            }
+            println("Response: $cena")
+            return  cena.toString()
+        }
 
-            return response.toString()
+
+        // Helper function to check if the braces are balanced
+        private fun areBracesBalanced(json: String): Int {
+            var braceCount = 0
+            for (char in json) {
+                when (char) {
+                    '{' -> braceCount++
+                    '}' -> braceCount--
+                }
+
+                // If at any point braces are imbalanced, return false
+                if (braceCount < 0) return -1
+            }
+            // Ensure all opening braces have a corresponding closing brace
+            return braceCount
         }
     }
+
+
 
     private val encryptedPreferences by lazy {
         val masterKeyAlias = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC)
@@ -122,6 +154,7 @@ class API private constructor(context: Context) {
     fun fetchUserData(): User? {
         return try {
             val jsonResponse = callApi(apiUrl = TOKEN_VALIDATION_ENDPOINT, httpMethod = "GET")
+
             val jsonObject = Gson().fromJson(jsonResponse, JsonObject::class.java)
             val data = jsonObject.getAsJsonObject("data")
             Gson().fromJson(data, User::class.java) // Parse response into User object
