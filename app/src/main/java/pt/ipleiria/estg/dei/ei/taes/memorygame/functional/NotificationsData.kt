@@ -17,7 +17,7 @@ data class Notification(
 
 class NotificationsViewModel : ViewModel() {
     private val _notifications = mutableStateListOf(
-        Notification("Session Started!.","", getCurrentFormattedTime(), false),
+        Notification("Session Started!", "", getCurrentFormattedTime(), false)
     )
 
     val notifications: SnapshotStateList<Notification> = _notifications
@@ -33,9 +33,10 @@ class NotificationsViewModel : ViewModel() {
             }
         }
     }
+
     fun addNotification(title: String, message: String) {
         val timestamp = getCurrentFormattedTime()
-        _notifications.add(Notification(title, message, timestamp))
+        _notifications.add(0,Notification(title, message, timestamp, false))
     }
 
     fun getCurrentFormattedTime(): String {

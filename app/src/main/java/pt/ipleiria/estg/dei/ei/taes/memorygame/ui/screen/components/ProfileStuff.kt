@@ -15,7 +15,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.UserData
 import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.api.API
+import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.api.WebSocketManager
 
 @Composable
 fun ProfileStuff(
@@ -38,7 +40,12 @@ fun ProfileStuff(
             ),
             onClick = {
                 if (naviagateTo == "profile"){
+                    if (UserData.user.value != null) {
+                        WebSocketManager.emitLogout(UserData.user.value!!)
+                    }
                     API.getInstance(context).clearToken()
+                    UserData.updateUser(null)
+
                 }
                 navController.navigate(naviagateTo)
             },

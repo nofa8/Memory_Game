@@ -22,7 +22,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.BoardData
 import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.ScoreEntry
-import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.calculateScore
 
 
 @Composable
@@ -68,11 +67,6 @@ fun ScoreTab(
                     color = darkGrayText
                 )
                 ScoreHeaderCell(
-                    text = "Score",
-                    modifier = Modifier.weight(0.8f),
-                    color = darkGrayText
-                )
-                ScoreHeaderCell(
                     text = "Board",
                     modifier = Modifier.weight(1f),
                     color = darkGrayText
@@ -80,44 +74,45 @@ fun ScoreTab(
             }
 
             // Score Entries
-            LazyColumn {
-                itemsIndexed(scores) { index, entry ->
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(
-                                color = if (index % 2 == 0) Color.White
-                                else lightGrayBackground
+            if (scores.isEmpty()){
+                Text("No scores available or are being loaded!")
+            }else {
+
+
+                LazyColumn {
+                    itemsIndexed(scores) { index, entry ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(
+                                    color = if (index % 2 == 0) Color.White
+                                    else lightGrayBackground
+                                )
+                                .padding(12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            ScoreCell(
+                                text = entry.name,
+                                modifier = Modifier.weight(1.2f),
+                                color = darkGrayText,
+                                fontWeight = FontWeight.SemiBold
                             )
-                            .padding(12.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        ScoreCell(
-                            text = entry.name,
-                            modifier = Modifier.weight(1.2f),
-                            color = darkGrayText,
-                            fontWeight = FontWeight.SemiBold
-                        )
-                        ScoreCell(
-                            text = entry.total_time.toString(),
-                            modifier = Modifier.weight(1f),
-                            color = softGrayText
-                        )
-                        ScoreCell(
-                            text = entry.turns.toString(),
-                            modifier = Modifier.weight(0.8f),
-                            color = softGrayText
-                        )
-                        ScoreCell(
-                            text =calculateScore(moves = entry.turns, timeSec =  entry.total_time.toInt() ).toString(),
-                            modifier = Modifier.weight(0.8f),
-                            color = softGrayText
-                        )
-                        ScoreCell(
-                            text = BoardData.boards[entry.board-1].cols.toString()+"x"+BoardData.boards[entry.board-1].rows.toString(),
-                            modifier = Modifier.weight(1f),
-                            color = softGrayText
-                        )
+                            ScoreCell(
+                                text = entry.total_time.toString(),
+                                modifier = Modifier.weight(1f),
+                                color = softGrayText
+                            )
+                            ScoreCell(
+                                text = entry.turns.toString(),
+                                modifier = Modifier.weight(0.8f),
+                                color = softGrayText
+                            )
+                            ScoreCell(
+                                text = BoardData.boards[entry.board - 1].cols.toString() + "x" + BoardData.boards[entry.board - 1].rows.toString(),
+                                modifier = Modifier.weight(1f),
+                                color = softGrayText
+                            )
+                        }
                     }
                 }
             }

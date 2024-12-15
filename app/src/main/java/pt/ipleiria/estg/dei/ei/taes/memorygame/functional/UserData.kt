@@ -1,11 +1,17 @@
 package pt.ipleiria.estg.dei.ei.taes.memorygame.functional
 
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.text.rememberTextMeasurer
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.api.API
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 
 data class User(
     val id: Int,
@@ -13,16 +19,16 @@ data class User(
     val email: String,
     val type: String,
     val nickname: String,
-    val photoFileName: String,
-    val brain_coins_balance: Int,
+    val photoFileName: String?,
+    val brain_coins_balance: Int
 )
 
 object UserData {
     private val apiUrl = "${API.url}/users/me"
-
+    var brainViewModel: BrainViewModel? = null
     // Mutable user property. Public setter allows you to change it from outside the object.
-    var user: User? = null
-        private set  // Prevent external modification directly, but can be set internally.
+    var user: MutableState<User?> = mutableStateOf(null)
+        private set
 
     /**
      * Fetch the user data from the API.
@@ -40,12 +46,12 @@ object UserData {
             val dataObject = jsonObject.getAsJsonObject("data")
 
             // Convert the JSON object into a User object
-            user = Gson().fromJson(dataObject, User::class.java)
+            user.value = Gson().fromJson(dataObject, User::class.java)
 
             true // Return true on success
         } catch (e: Exception) {
             e.printStackTrace()
-            user = null // Reset to null on failure
+            user.value = null // Reset to null on failure
             false // Return false on failure
         }
     }
@@ -54,6 +60,18 @@ object UserData {
      * Optionally, you can create a method to allow modifying the user from outside, if needed.
      */
     fun updateUser(newUser: User?) {
-        user = newUser
+        val oldUser = user.value // Current user state
+
+        user.value = newUser // Update user state
+        if (oldUser == null){
+            return
+        }
+        newUser?.brain_coins_balance?.let { newBalance ->
+            val oldBalance = oldUser.brain_coins_balance
+            if (newBalance != oldBalance) {
+                brainViewModel?.updateBrains(newBalance - oldBalance)
+            }
+        }
     }
+
 }

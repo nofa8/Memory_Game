@@ -23,17 +23,21 @@ import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.components.Notification
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.components.TopActionBar
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.theme.ColorBackground
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
-@Composable
-fun HistoryScreen(navController: NavController, brainViewModel: BrainViewModel) {
-    val playerScores by ScoreController.scores.collectAsState(initial = emptyList())
-    val playerHistory by ScoreController.history.collectAsState(initial = emptyList())
+import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.NotificationsViewModel
 
+@Composable
+fun HistoryScreen(
+    navController: NavController,
+    brainViewModel: BrainViewModel,
+    notificationsViewModel: NotificationsViewModel
+) {
+
+    val playerHistory by ScoreController.history.collectAsState(initial = emptyList())
 
     // Side effect to refresh data
     LaunchedEffect(Unit) {
-        ScoreController.refreshScores()
         ScoreController.refreshHistory()
+
     }
 
 
@@ -52,7 +56,9 @@ fun HistoryScreen(navController: NavController, brainViewModel: BrainViewModel) 
                 vertical = 10.dp
             ).padding(paddings),
                 leftFunction = { BrainCoinsButton(brainViewModel = brainViewModel) },
-                rightFunction = { NotificationButton() }
+                rightFunction = { NotificationButton(
+                    notificationsViewModel = notificationsViewModel
+                ) }
             )
 
             Box(
@@ -61,7 +67,7 @@ fun HistoryScreen(navController: NavController, brainViewModel: BrainViewModel) 
                     .weight(1f)
             ) {
                 HistoryTab(
-                    scores = playerScores,
+                    scores = playerHistory,
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(vertical = 4.dp)

@@ -1,5 +1,6 @@
 package pt.ipleiria.estg.dei.ei.taes.memorygame.functional
 
+import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import com.google.gson.reflect.TypeToken
@@ -33,6 +34,9 @@ object ScoreController {
     private val _scores = MutableStateFlow<List<ScoreEntry>>(emptyList())
     val scores: StateFlow<List<ScoreEntry>> = _scores
 
+    private val _scoresPersonal = MutableStateFlow<List<ScoreEntry>>(emptyList())
+    val scoresPersonal: StateFlow<List<ScoreEntry>> = _scoresPersonal
+
     private val _history = MutableStateFlow<List<ScoreEntry>>(emptyList())
     val history: StateFlow<List<ScoreEntry>> = _history
 
@@ -51,6 +55,22 @@ object ScoreController {
             emptyList()
         }
     }
+
+    suspend fun fetchPersonalScores(): List<ScoreEntry> {
+        return try {
+            val jsonResponse = withContext(Dispatchers.IO) {
+                API.callApi(apiUrl = API.url + "/gamesPersonalTAES", httpMethod = "GET")
+            }
+            val jsonObject = Gson().fromJson(jsonResponse, JsonObject::class.java)
+            val dataArray = jsonObject.getAsJsonArray("data")
+            val type = object : TypeToken<List<ScoreEntry>>() {}.type
+            Gson().fromJson(dataArray, type)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            emptyList()
+        }
+    }
+
 
     suspend fun fetchHistory(): List<ScoreEntry> {
         return try {
@@ -88,6 +108,7 @@ object ScoreController {
             val newHistory = fetchHistory()
             if (newHistory.isNotEmpty()) {
                 _history.update { newHistory }
+
             } else {
                 // Handle empty history, maybe log or show a default state
                 _history.update { emptyList() }
@@ -98,6 +119,24 @@ object ScoreController {
             _history.update { emptyList() }
         }
     }
+
+    suspend fun refreshPersonal() {
+        try {
+            val newPerson = fetchPersonalScores()
+            if (newPerson.isNotEmpty()) {
+                _scoresPersonal.update { newPerson }
+
+            } else {
+                // Handle empty history, maybe log or show a default state
+                _scoresPersonal.update { emptyList() }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            // Handle failure, maybe log it
+            _scoresPersonal.update { emptyList() }
+        }
+    }
+
 
 
 }
