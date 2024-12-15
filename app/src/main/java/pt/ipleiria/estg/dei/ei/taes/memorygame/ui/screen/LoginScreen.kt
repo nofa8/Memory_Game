@@ -33,15 +33,18 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.NotificationsViewModel
 import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.UserData
 import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.api.API
+import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.api.WebSocketManager
 
 @Composable
 fun LoginScreen(
     navController: NavController,
     modifier: Modifier = Modifier,
     start: Boolean = false,
-    brainViewModel: BrainViewModel
+    brainViewModel: BrainViewModel,
+    notificationsViewModel: NotificationsViewModel
 ) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -52,8 +55,8 @@ fun LoginScreen(
     var context = LocalContext.current
 
 
-    LaunchedEffect(API.token != "" && UserData.user != null) {
-        if (UserData.user != null && !loginSuccess){
+    LaunchedEffect(API.token != "" && UserData.user.value != null) {
+        if (UserData.user.value != null && !loginSuccess){
             navController.navigate("dashboard")
         }
     }
@@ -136,6 +139,9 @@ fun LoginScreen(
                         if (success) {
                             // Show success message and trigger navigation after delay
                             loginMessage = "Login Successful"
+                            if (UserData.user.value != null) {
+                                WebSocketManager.emitLogin(UserData.user.value!!)
+                            }
                             loginSuccess = true
                         } else {
                             errorMessage = error // Display error message
@@ -179,8 +185,8 @@ fun LoginScreen(
 
                 val userOk = UserData.fetchUser()
                 if (userOk){
-                    if (UserData.user!= null ){
-                        brainViewModel.updateBrains(UserData.user!!.brain_coins_balance)
+                    if (UserData.user.value!= null ){
+                        brainViewModel.updateBrains(UserData.user.value!!.brain_coins_balance)
                     }
                 }
                 if (start == false) {

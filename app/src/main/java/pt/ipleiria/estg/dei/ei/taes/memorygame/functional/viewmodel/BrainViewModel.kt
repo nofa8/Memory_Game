@@ -7,8 +7,8 @@ import kotlinx.coroutines.flow.update
 import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.UserData
 
 data class BrainUiState(
-    var brainValue: Int = if (UserData.user  != null) {
-        UserData.user!!.brain_coins_balance
+    var brainValue: Int = if (UserData.user.value != null) {
+        UserData.user.value!!.brain_coins_balance
     }else{
         0
     }
@@ -16,7 +16,6 @@ data class BrainUiState(
 
 class BrainViewModel : ViewModel() {
 
-    // Gerencia o estado da interface
     private val _uiState = MutableStateFlow(BrainUiState())
     val uiState: StateFlow<BrainUiState> = _uiState.asStateFlow()
 

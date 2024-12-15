@@ -30,6 +30,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavController
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.UserData
+import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.api.API
 
 
 //Todo: Tab do Jogo DropDown de Tabelas, Escolha de cartas?, Jogar
@@ -109,7 +114,12 @@ fun GameTab(
                         }
                         else{
                             if(selectedBoard != "3x4"){
-                                brainViewModel.updateBrains(-1)
+
+                                UserData.updateUser(UserData.user.value?.copy(brain_coins_balance = UserData.user.value?.brain_coins_balance!! - 1))
+                                CoroutineScope(Dispatchers.IO).launch {
+                                    val apiUrl = "${API.url}/gamesTAES/hintNboard" // Replace with your actual endpoint
+                                    val response = API.callApi(apiUrl, "POST")
+                                }
 
                             }
                             val (cardsRow, cardsColumn) = selectedBoard.split("x").map { it.toInt() }

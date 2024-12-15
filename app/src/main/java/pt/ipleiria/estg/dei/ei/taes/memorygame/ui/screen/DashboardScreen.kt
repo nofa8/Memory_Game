@@ -12,7 +12,6 @@ import androidx.compose.ui.Modifier
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.NotificationsViewModel
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.components.BottomActionBar
@@ -28,8 +27,11 @@ import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.theme.ColorBackground
 
 
 @Composable
-fun DashboardScreen(navController: NavController,  brainViewModel: BrainViewModel) {
-    val notificationsViewModel: NotificationsViewModel = viewModel()
+fun DashboardScreen(
+    navController: NavController,
+    brainViewModel: BrainViewModel,
+    notificationsViewModel: NotificationsViewModel
+) {
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -45,7 +47,9 @@ fun DashboardScreen(navController: NavController,  brainViewModel: BrainViewMode
                 vertical = 10.dp
             ).padding(paddings),
                 leftFunction = {BrainCoinsButton(brainViewModel = brainViewModel)},
-                rightFunction = {NotificationButton()}
+                rightFunction = {NotificationButton(
+                    notificationsViewModel = notificationsViewModel
+                )}
             )
             GameTab(modifier = Modifier.padding(vertical = 4.dp).fillMaxWidth(),
                 text = "Play",

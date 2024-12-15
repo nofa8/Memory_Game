@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -19,11 +20,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import kotlinx.coroutines.flow.filter
-import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.BoardData
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.NotificationsViewModel
 import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.ScoreController
-import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.ScoreEntry
-import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.UserData
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.components.BottomActionBar
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.components.BrainCoinsButton
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.components.FilterBoardDropdown
@@ -35,29 +37,27 @@ import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.theme.ColorBackground
 
 
 @Composable
-fun ScoreboardScreen(navController: NavController, brainViewModel: BrainViewModel) {
+fun ScoreboardScreen(
+    navController: NavController,
+    brainViewModel: BrainViewModel,
+    notificationsViewModel: NotificationsViewModel
+) {
     var selectedBoard by remember { mutableStateOf("3x4") }
-    var selectedType by remember { mutableStateOf("Personal") }
+    var selectedType by remember { mutableStateOf("Global") }
+
+    LaunchedEffect(Unit) {
+        CoroutineScope(Dispatchers.Main).launch {
+            ScoreController.refreshScores()
+            ScoreController.refreshPersonal()
+        }
+    }
 
     // Observe the scores reactively
     val scores by ScoreController.scores.collectAsState(initial = emptyList())
+    val scoresPersonal by ScoreController.scoresPersonal.collectAsState(initial = emptyList())
 
 
-    // Filter, sort, and select top 10 performances
-    val topPerformances = remember(selectedBoard, selectedType, scores) {
-        val boardSelected = BoardData.boards.find { "${it.cols}x${it.rows}" == selectedBoard }?.id
-        scores
-            .filter { it.board == boardSelected }
-            .filter {
-                if (selectedType == "Personal") it.name == UserData.user?.nickname
-                else true
-            }
-            .sortedWith(
-                compareBy<ScoreEntry> { it.total_time }
-                    .thenBy { it.turns }
-            )
-            .take(10)
-    }
+
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -75,7 +75,7 @@ fun ScoreboardScreen(navController: NavController, brainViewModel: BrainViewMode
                     )
                     .padding(paddings),
                 leftFunction = { BrainCoinsButton(brainViewModel = brainViewModel) },
-                rightFunction = { NotificationButton() }
+                rightFunction = { NotificationButton(notificationsViewModel = notificationsViewModel) }
             )
 
             Row(
@@ -100,12 +100,11 @@ fun ScoreboardScreen(navController: NavController, brainViewModel: BrainViewMode
             }
 
             ScoreTab(
-                scores = topPerformances,
+                scores = if(selectedType == "Global") scores else scoresPersonal,
                 modifier = Modifier
                     .padding(vertical = 4.dp)
                     .fillMaxWidth()
             )
-
             Spacer(modifier = Modifier.weight(1f))
             BottomActionBar(
                 onScoresClick = { navController.navigate("scoreboard") },

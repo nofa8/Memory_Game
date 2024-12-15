@@ -23,7 +23,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.BoardData
 import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.ScoreEntry
-import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.calculateScore
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -77,13 +76,6 @@ fun HistoryTab(
                     color = darkGrayText
                 )
                 HistoryHeaderCell(
-                    text = "Score",
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(start = 8.dp),
-                    color = darkGrayText
-                )
-                HistoryHeaderCell(
                     text = "Board",
                     modifier = Modifier
                         .weight(0.8f)
@@ -92,7 +84,7 @@ fun HistoryTab(
                 )
             }
             if (scores.isEmpty()){
-                Text("No scores available")
+                Text("No scores available or are being loaded!")
             }else {
                 LazyColumn {
                     itemsIndexed(scores) { index, entry ->
@@ -114,26 +106,24 @@ fun HistoryTab(
                                 color = softGrayText
                             )
                             HistoryCell(
-                                text = entry.total_time.toString(),
+                                text = if (entry.total_time.toInt() == -1){
+                                    "-----"
+                                }else{
+                                    entry.total_time.toString()
+                                },
                                 modifier = Modifier
                                     .weight(1f)
                                     .padding(start = 8.dp, end = 8.dp),
                                 color = softGrayText
                             )
                             HistoryCell(
-                                text = entry.turns.toString(),
+                                text =if (entry.turns == -1){
+                                    "-----"
+                                }else{
+                                    entry.turns.toString()
+                                },
                                 modifier = Modifier
                                     .weight(1.2f)
-                                    .padding(start = 8.dp),
-                                color = softGrayText
-                            )
-                            HistoryCell(
-                                text = calculateScore(
-                                    moves = entry.turns,
-                                    timeSec = entry.total_time.toInt()
-                                ).toString(),
-                                modifier = Modifier
-                                    .weight(1f)
                                     .padding(start = 8.dp),
                                 color = softGrayText
                             )
