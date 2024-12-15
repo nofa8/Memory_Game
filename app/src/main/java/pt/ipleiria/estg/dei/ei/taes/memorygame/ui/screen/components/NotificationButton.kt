@@ -34,10 +34,11 @@ import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.theme.ColorSurface
 
 @Composable
 fun NotificationButton(
-    modifier: Modifier = Modifier
-) {
-    val notificationsViewModel: NotificationsViewModel = viewModel()
-    val unreadCount = notificationsViewModel.notifications.count { !it.isRead } // Count unread notifications
+    modifier: Modifier = Modifier,
+    notificationsViewModel: NotificationsViewModel
+    ) {
+    // Count unread notifications
+    val unreadCount = notificationsViewModel.notifications.count { !it.isRead }
 
     // State to track popup visibility
     var isPopupVisible by remember { mutableStateOf(false) }
@@ -75,22 +76,7 @@ fun NotificationButton(
 
         // Badge for unread notifications
         if (unreadCount > 0) {
-            Box(
-                modifier = Modifier
-                    .size(20.dp) // Badge size
-                    .background(Color.Red, shape = CircleShape)
-                    .border(1.dp, Color.White, CircleShape)
-                    .align(Alignment.BottomStart), // Adjust position to look good
-                contentAlignment = Alignment.Center,
-
-            ) {
-                Text(
-                    text = unreadCount.toString(),
-                    color = Color.White,
-                    style = MaterialTheme.typography.caption.copy(fontWeight = FontWeight.Bold),
-                    modifier = Modifier.padding(2.dp),// Padding inside the badge
-                )
-            }
+            UnreadCountBadge(unreadCount = unreadCount)
         }
     }
 
@@ -102,4 +88,23 @@ fun NotificationButton(
         )
     }
 }
+
+@Composable
+fun UnreadCountBadge(unreadCount: Int) {
+    Box(
+        modifier = Modifier
+            .size(20.dp) // Badge size
+            .background(Color.Red, shape = CircleShape)
+            .border(1.dp, Color.White, CircleShape),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            text = unreadCount.toString(),
+            color = Color.White,
+            style = MaterialTheme.typography.caption.copy(fontWeight = FontWeight.Bold),
+            modifier = Modifier.padding(2.dp), // Padding inside the badge
+        )
+    }
+}
+
 
