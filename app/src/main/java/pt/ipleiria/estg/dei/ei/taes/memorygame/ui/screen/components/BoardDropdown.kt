@@ -32,7 +32,7 @@ fun BoardDropdown(
     selectedValue: String,
     onOptionSelected: (String) -> Unit
 ) {
-    val options: List<Board> = BoardData.boards
+    val options: MutableList<Board> = BoardData.boards
     var expanded by remember { mutableStateOf(false) }
     val cur = LocalContext.current
     ExposedDropdownMenuBox(

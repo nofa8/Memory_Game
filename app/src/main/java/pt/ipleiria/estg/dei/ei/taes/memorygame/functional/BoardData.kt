@@ -17,13 +17,10 @@ data class Board(
     val rows: Int
 )
 
-
 object BoardData {
     private val apiUrl = "${API.url}/boards"
-    var boards: List<Board> = emptyList()
+    var boards: MutableList<Board> = mutableListOf() // Use MutableList
         private set
-
-
 
     suspend fun fetchBoards(): Boolean {
         return try {
@@ -38,12 +35,13 @@ object BoardData {
 
             // Convert JSON array into a list of Board objects
             val type = object : TypeToken<List<Board>>() {}.type
-            boards = Gson().fromJson(dataArray, type)
+            boards.clear() // Clear the existing list before adding new items
+            boards.addAll(Gson().fromJson(dataArray, type)) // Add new data
 
             true // Return true on success
         } catch (e: Exception) {
             e.printStackTrace()
-            boards = emptyList() // Reset to an empty list on failure
+            boards.clear() // Reset to an empty list on failure
             false // Return false on failure
         }
     }

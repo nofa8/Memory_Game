@@ -16,12 +16,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.UserData
 import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.api.API
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.components.BottomActionBar
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.components.ProfileStuff
@@ -32,7 +34,6 @@ import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.theme.ColorBackground
 
 @Composable
 fun ProfileScreen(navController: NavController, brainViewModel: BrainViewModel) {
-
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         containerColor = ColorBackground
@@ -59,7 +60,7 @@ fun ProfileScreen(navController: NavController, brainViewModel: BrainViewModel) 
 
                 Spacer(modifier = Modifier.height(20.dp))
 
-                ProfileStuff("Logout", navController, "login")
+                ProfileStuff("Logout", navController, "profile")
 
             } else {
                 // Show login screen if the user is not logged in

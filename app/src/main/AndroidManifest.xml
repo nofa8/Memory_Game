@@ -15,7 +15,8 @@
         android:theme="@style/Theme.MemoryGame"
         tools:targetApi="33"
         android:networkSecurityConfig="@xml/network_config"
-        android:enableOnBackInvokedCallback="true">
+        android:enableOnBackInvokedCallback="true"
+        >
 
         <activity
             android:name=".MainActivity"

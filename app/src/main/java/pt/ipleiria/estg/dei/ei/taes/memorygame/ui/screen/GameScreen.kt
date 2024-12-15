@@ -1,6 +1,8 @@
 package pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen
 
 import BrainViewModel
+import android.content.Context
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -34,7 +36,6 @@ import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.components.HintButton
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.components.TopActionBar
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.theme.ColorBackground
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.navigation.NavController
@@ -44,8 +45,15 @@ import com.google.gson.Gson
 import com.google.gson.JsonObject
 import kotlinx.coroutines.withContext
 import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.Board
+import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.BoardData
 import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.BoardData.boards
+import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.NotificationsViewModel
+import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.User
+import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.UserData
 import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.api.API
+import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.api.AppContextHolder
+import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.api.NotificationHelper
+import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.api.WebSocketManager
 import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.calculateScore
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.components.BackButton
 import java.time.LocalDateTime
@@ -64,6 +72,7 @@ fun addSecondsToDateTime(dateTime: LocalDateTime, secondsToAdd: Long): String {
 }
 
 
+
 data class GameResult(
     val type: String,
     val status: String,
@@ -76,9 +85,69 @@ data class GameResult(
     val total_turns_winner: Int?
 )
 
+data class GameResultResponse(
+    val message: String,
+    val is_top_time: Int,
+    val is_top_turns: Int,
+    val is_personal_top_time: Int,
+    val is_personal_top_turns: Int
+)
 
-suspend fun postGameResult(gameResult: GameResult?): Boolean {
+// Function to show notification, update user data, and make API call
+fun handleBonusBrainCoins(bonus: Int, current: Context) {
+    // Show a notification to the user
+    NotificationHelper.showNotification(
+        context = current,  // Pass context of your activity or application
+        title = "Bonus Brain Coins",
+        message = "You got $bonus more Brain Coins based on your performance!"
+    )
+
+    // Update the user's brain coins balance locally
+    UserData.updateUser(
+        UserData.user.value?.copy(
+            brain_coins_balance = UserData.user.value?.brain_coins_balance?.plus(bonus) ?: bonus
+        )
+    )
+
+    // Make an API call to update the server
+    CoroutineScope(Dispatchers.IO).launch {
+        try {
+            // Construct API URL
+            val apiUrl = "${API.url}/gamesTAES/bonusBrainCoins" // Replace with your actual endpoint
+
+            // Prepare the data payload
+            val payload = mapOf("amount" to bonus)
+
+            // Call the API with POST method and payload
+            val response = API.callApi(apiUrl, "POST", payload)
+
+            // Parse the response and update the user
+            withContext(Dispatchers.Main) {
+                try {
+                    // Parse the JSON response to a User object
+                    val gson = Gson()
+                    val jsonResponse = gson.fromJson(response, JsonObject::class.java)
+                    val userJson = jsonResponse.getAsJsonObject("user")
+                    val updatedUser = gson.fromJson(userJson, User::class.java)
+
+                    // Update the user data locally
+                    UserData.updateUser(updatedUser)
+                } catch (e: Exception) {
+                    println("Error parsing the response or updating user: ${e.message}")
+                }
+            }
+        } catch (e: Exception) {
+            // Log the error or notify the user
+            withContext(Dispatchers.Main) {
+                println("Error sending Bonus Brain Coins request: ${e.message}")
+            }
+        }
+    }
+}
+
+suspend fun postGameResult(gameResult: GameResult?, current: Context): Boolean {
     if (gameResult == null) {
+        Log.e("API Error", "Game result is null.")
         return false
     }
 
@@ -94,21 +163,75 @@ suspend fun postGameResult(gameResult: GameResult?): Boolean {
         }
 
         // Parse the response safely
-        val jsonResponse = Gson().fromJson(response, JsonObject::class.java)
+        val jsonResponse = Gson().fromJson(response, GameResultResponse::class.java)
 
-        // Optional: Debugging output
-        println(jsonResponse)
+        // Debugging output for the response
+        Log.d("API Response", "Response JSON: $jsonResponse")
 
-        // Check if the "success" field is true
-        jsonResponse["success"]?.asBoolean == true
+        // Safely access specific fields with null checks
+        val isPersonalTopTime = jsonResponse.is_personal_top_time
+        val isPersonalTopTurn = jsonResponse.is_personal_top_turns
+        val isGlobalTopTurn = jsonResponse.is_top_turns
+        val isGlobalTopTime = jsonResponse.is_top_time
+
+        // WebSocket connection handling
+        val webSocket = WebSocketManager
+        var bonus = 0
+        if (isPersonalTopTime != 0){
+            bonus++
+            NotificationHelper.showNotification(
+                context = current,  // Pass context of your activity or application
+                title = "Personal Top Time",
+                message = "You got to $isPersonalTopTime${if (isPersonalTopTime == 1) "st" else if (isPersonalTopTime == 2) "nd" else if (isPersonalTopTime == 3) "rd" else "th"} place in Personal Top 3 Time ${BoardData.boards[gameResult.board_id-1].cols}x${BoardData.boards[gameResult.board_id-1].rows}"
+            )
+        }
+        if(isPersonalTopTurn!= 0){
+            bonus ++
+            NotificationHelper.showNotification(
+                context = current,  // Pass context of your activity or application
+                title = "Personal Top Turns",
+                message = "You got to $isPersonalTopTurn${if (isPersonalTopTurn == 1) "st" else if (isPersonalTopTurn == 2) "nd" else if (isPersonalTopTurn == 3) "rd" else "th"} place in Personal Top 3 Turns ${BoardData.boards[gameResult.board_id-1].cols}x${BoardData.boards[gameResult.board_id-1].rows}"
+            )
+        }
+
+        // Handle global top turn and time announcements
+        if (isGlobalTopTurn!= 0) {
+            bonus ++
+            val user = UserData.user.value
+            webSocket.emitBroadcast("${user!!.nickname} has gotten $isGlobalTopTurn${if (isGlobalTopTurn == 1) "st" else if (isGlobalTopTurn == 2) "nd" else if (isGlobalTopTurn == 3) "rd" else "th"} place in the Global Top 10 Turns ${BoardData.boards[gameResult.board_id-1].cols}x${BoardData.boards[gameResult.board_id-1].rows}")
+        }
+
+        if (isGlobalTopTime!= 0) {
+            bonus ++
+            val user = UserData.user.value
+            webSocket.emitBroadcast("${user!!.nickname} has gotten $isGlobalTopTime${if (isGlobalTopTime == 1) "st" else if (isGlobalTopTime == 2) "nd" else if (isGlobalTopTime == 3) "rd" else "th"} place in the Global Top 10 Time ${BoardData.boards[gameResult.board_id-1].cols}x${BoardData.boards[gameResult.board_id-1].rows}")
+        }
+
+        if (bonus != 0){
+            handleBonusBrainCoins(bonus, current)
+        }
+        // Log for further debugging
+        Log.d("API Response", "Personal Top Time: $isPersonalTopTime, Personal Top Turns: $isPersonalTopTurn")
+        Log.d("API Response", "Global Top Time: $isGlobalTopTime, Global Top Turns: $isGlobalTopTurn")
+        NotificationHelper.showSummaryNotification(AppContextHolder.appContext)
+        // Return whether the "is_personal_top_time" key exists
+        true
     } catch (e: Exception) {
-        e.printStackTrace()
+        // Enhanced error logging
+        Log.e("API Error", "Failed to post game result: ${e.message}", e)
         false
     }
 }
 
+
 @Composable
-fun GameScreen(cardsRow: Int, cardsColumn: Int, brainViewModel: BrainViewModel, navController: NavController) {
+fun GameScreen(
+    cardsRow: Int,
+    cardsColumn: Int,
+    brainViewModel: BrainViewModel,
+    navController: NavController,
+    notificationsViewModel: NotificationsViewModel
+) {
     val board: Board? = boards.find { it.cols == cardsColumn && it.rows == cardsRow }
     val cardCount = cardsColumn * cardsRow
     val cards = remember { CardControl.getPairsOfCards(cardCount / 2) }
@@ -125,7 +248,7 @@ fun GameScreen(cardsRow: Int, cardsColumn: Int, brainViewModel: BrainViewModel, 
     var gameResult by remember { mutableStateOf<GameResult?>(null) }
 
 
-
+    val current = LocalContext.current
 
     // Timer for elapsed time
     LaunchedEffect(isGameOver) {
@@ -150,11 +273,10 @@ fun GameScreen(cardsRow: Int, cardsColumn: Int, brainViewModel: BrainViewModel, 
 
             popUpAlreadyOpened = true;
 
-            postGameResult(gameResult)
+            postGameResult(gameResult, current)
         }
 
     }
-    val context = LocalContext.current
 
     if (popUpAlreadyOpened) {
         // Quando o jogo terminar, o estado isGameOver é verdadeiro e mostramos o popup
@@ -174,7 +296,7 @@ fun GameScreen(cardsRow: Int, cardsColumn: Int, brainViewModel: BrainViewModel, 
                     }
                 }
                 else{
-                    Toast.makeText(context, "Brains coins insufficient!!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(current, "Brains coins insufficient!!", Toast.LENGTH_SHORT).show()
                     navController.navigate("dashboard")
                 }
 
@@ -229,13 +351,17 @@ fun GameScreen(cardsRow: Int, cardsColumn: Int, brainViewModel: BrainViewModel, 
     fun revealHint() {
         // Verificar se já existe uma carta revelada
         if(brainViewModel.getBrainValue()<=0){
-                Toast.makeText(context, "Insufficient Brains coins!!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(current, "Insufficient Brains coins!!", Toast.LENGTH_SHORT).show()
                 return
         }
         if( isGameOver == true || isClickable == false){
             return
         }
-        brainViewModel.updateBrains(-1)
+        UserData.updateUser(UserData.user.value?.copy(brain_coins_balance = UserData.user.value?.brain_coins_balance!! - 1))
+        CoroutineScope(Dispatchers.IO).launch {
+            val apiUrl = "${API.url}/gamesTAES/hintNboard" // Replace with your actual endpoint
+            val response = API.callApi(apiUrl, "POST")
+        }
         if (flippedCards.size == 1) {
             // Há uma carta revelada, então procurar pelo par correspondente
             val firstRevealedIndex = flippedCards.first() // O índice da carta revelada

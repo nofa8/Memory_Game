@@ -60,9 +60,7 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
     implementation("com.google.code.gson:gson:2.11.0")
-    implementation("com.squareup.okhttp3:okhttp:4.11.0") // Or the latest version
-    implementation ("com.pusher:pusher-java-client:2.4.2")
-
+    implementation("io.socket:socket.io-client:2.1.0")
 
     // EncryptedSharedPreferences for secure token storage
     implementation("androidx.security:security-crypto:1.1.0-alpha06")

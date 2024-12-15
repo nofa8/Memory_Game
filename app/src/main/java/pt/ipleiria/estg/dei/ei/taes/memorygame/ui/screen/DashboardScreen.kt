@@ -23,12 +23,7 @@ import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.components.Notification
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.components.TopActionBar
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.theme.ColorBackground
 
-data class Notification(
-    val title: String,
-    val message: String,
-    val timestamp: String,
-    var isRead: Boolean = false
-)
+
 
 
 

@@ -40,7 +40,7 @@ object ScoreController {
     suspend fun fetchScores(): List<ScoreEntry> {
         return try {
             val jsonResponse = withContext(Dispatchers.IO) {
-                API.callApi(apiUrl = API.url + "/games", httpMethod = "GET")
+                API.callApi(apiUrl = API.url + "/gamesTAES", httpMethod = "GET")
             }
             val jsonObject = Gson().fromJson(jsonResponse, JsonObject::class.java)
             val dataArray = jsonObject.getAsJsonArray("data")
@@ -55,7 +55,7 @@ object ScoreController {
     suspend fun fetchHistory(): List<ScoreEntry> {
         return try {
             val jsonResponse = withContext(Dispatchers.IO) {
-                API.callApi(apiUrl = API.url + "/indexHistoryTAES", httpMethod = "GET")
+                API.callApi(apiUrl = API.url + "/historyTAES", httpMethod = "GET")
             }
             val jsonObject = Gson().fromJson(jsonResponse, JsonObject::class.java)
             val dataArray = jsonObject.getAsJsonArray("data")
@@ -67,16 +67,39 @@ object ScoreController {
         }
     }
 
-    // Update scores and history
     suspend fun refreshScores() {
-        val newScores = fetchScores()
-        _scores.update { newScores }
+        try {
+            val newScores = fetchScores()
+            if (newScores.isNotEmpty()) {
+                _scores.update { newScores }
+            } else {
+                // Handle empty scores, maybe log or show a default state
+                _scores.update { emptyList() }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            // Handle failure, maybe log it
+            _scores.update { emptyList() }
+        }
     }
 
     suspend fun refreshHistory() {
-        val newHistory = fetchHistory()
-        _history.update { newHistory }
+        try {
+            val newHistory = fetchHistory()
+            if (newHistory.isNotEmpty()) {
+                _history.update { newHistory }
+            } else {
+                // Handle empty history, maybe log or show a default state
+                _history.update { emptyList() }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            // Handle failure, maybe log it
+            _history.update { emptyList() }
+        }
     }
+
+
 }
 
 
