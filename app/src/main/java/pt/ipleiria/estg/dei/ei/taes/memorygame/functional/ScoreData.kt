@@ -30,6 +30,9 @@ data class ScoreEntry(
 
 object ScoreController {
     // Use StateFlow for reactive updates
+    private var alreadyFetchedScore = false
+    private var alreadyFetchedHistory = false
+
     private val _scores = MutableStateFlow<List<ScoreEntry>>(emptyList())
     val scores: StateFlow<List<ScoreEntry>> = _scores
 
@@ -45,6 +48,8 @@ object ScoreController {
             val jsonResponse = withContext(Dispatchers.IO) {
                 API.callApi(apiUrl = API.url + "/gamesTAES", httpMethod = "GET")
             }
+            alreadyFetchedScore = true
+
             val jsonObject = Gson().fromJson(jsonResponse, JsonObject::class.java)
             val dataArray = jsonObject.getAsJsonArray("data")
             val type = object : TypeToken<List<ScoreEntry>>() {}.type
@@ -60,6 +65,7 @@ object ScoreController {
             val jsonResponse = withContext(Dispatchers.IO) {
                 API.callApi(apiUrl = API.url + "/gamesPersonalTAES", httpMethod = "GET")
             }
+            alreadyFetchedScore = true
             val jsonObject = Gson().fromJson(jsonResponse, JsonObject::class.java)
             val dataArray = jsonObject.getAsJsonArray("data")
             val type = object : TypeToken<List<ScoreEntry>>() {}.type
@@ -76,6 +82,7 @@ object ScoreController {
             val jsonResponse = withContext(Dispatchers.IO) {
                 API.callApi(apiUrl = API.url + "/historyTAES", httpMethod = "GET")
             }
+            alreadyFetchedHistory = true
             val jsonObject = Gson().fromJson(jsonResponse, JsonObject::class.java)
             val dataArray = jsonObject.getAsJsonArray("data")
             val type = object : TypeToken<List<ScoreEntry>>() {}.type
@@ -136,7 +143,13 @@ object ScoreController {
         }
     }
 
+    fun fetchedScore (): Boolean {
+        return alreadyFetchedScore
+    }
 
+    fun fetchedHistory (): Boolean {
+        return alreadyFetchedHistory
+    }
 
 }
 
