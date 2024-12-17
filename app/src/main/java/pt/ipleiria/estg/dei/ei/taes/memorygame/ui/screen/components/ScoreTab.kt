@@ -3,6 +3,7 @@ package pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -43,7 +44,6 @@ fun ScoreTab(
         shadowElevation = 2.dp
     ) {
         Column {
-            // Header Row
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -56,16 +56,20 @@ fun ScoreTab(
                     modifier = Modifier.weight(1.2f),
                     color = darkGrayText
                 )
+                Spacer(Modifier.weight(1f))
                 ScoreHeaderCell(
                     text = "Time",
                     modifier = Modifier.weight(1f),
                     color = darkGrayText
                 )
+                Spacer(Modifier.weight(1f))
                 ScoreHeaderCell(
                     text = "Moves",
                     modifier = Modifier.weight(0.8f),
                     color = darkGrayText
                 )
+                Spacer(Modifier.weight(1f))
+
                 ScoreHeaderCell(
                     text = "Board",
                     modifier = Modifier.weight(1f),
@@ -77,8 +81,6 @@ fun ScoreTab(
             if (scores.isEmpty()){
                 Text("No scores available or are being loaded!")
             }else {
-
-
                 LazyColumn {
                     itemsIndexed(scores) { index, entry ->
                         Row(
@@ -88,33 +90,52 @@ fun ScoreTab(
                                     color = if (index % 2 == 0) Color.White
                                     else lightGrayBackground
                                 )
-                                .padding(12.dp),
+                                .padding(vertical = 8.dp, horizontal = 12.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             ScoreCell(
                                 text = entry.name,
-                                modifier = Modifier.weight(1.2f),
-                                color = darkGrayText,
-                                fontWeight = FontWeight.SemiBold
-                            )
-                            ScoreCell(
-                                text = entry.total_time.toString(),
-                                modifier = Modifier.weight(1f),
+                                modifier = Modifier
+                                    .weight(2f)
+                                    .padding(end = 8.dp),
                                 color = softGrayText
                             )
+                            Spacer(Modifier.weight(1f))
                             ScoreCell(
-                                text = entry.turns.toString(),
-                                modifier = Modifier.weight(0.8f),
+                                text = entry.total_time?.toString() ?: "-----",
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .padding(start = 8.dp, end = 8.dp),
                                 color = softGrayText
                             )
+                            Spacer(Modifier.weight(1f))
+
                             ScoreCell(
-                                text = BoardData.boards[entry.board - 1].cols.toString() + "x" + BoardData.boards[entry.board - 1].rows.toString(),
-                                modifier = Modifier.weight(1f),
+                                text = entry.turns?.toString() ?: "-----",
+                                modifier = Modifier
+                                    .weight(1.2f)
+                                    .padding(start = 8.dp),
+                                color = softGrayText
+                            )
+                            Spacer(Modifier.weight(1f))
+
+                            val boardIndex = entry.board - 1
+                            val board = if (boardIndex in BoardData.boards.indices) {
+                                BoardData.boards[boardIndex]
+                            } else {
+                                null
+                            }
+                            ScoreCell(
+                                text = board?.let { "${it.cols}x${it.rows}" } ?: "Unknown",
+                                modifier = Modifier
+                                    .weight(0.8f)
+                                    .padding(start = 8.dp),
                                 color = softGrayText
                             )
                         }
                     }
                 }
+
             }
         }
     }
@@ -152,7 +173,7 @@ private fun ScoreCell(
         fontWeight = fontWeight,
         color = color,
         textAlign = TextAlign.Start,
-        maxLines = 1,
+        maxLines = Int.MAX_VALUE,
         overflow = TextOverflow.Ellipsis
     )
 }
