@@ -66,6 +66,9 @@ object UserData {
         if (oldUser == null){
             return
         }
+        if ( newUser == null && brainViewModel != null){
+            brainViewModel!!.updateBrains(-(brainViewModel!!.getBrainValue()))
+        }
         newUser?.brain_coins_balance?.let { newBalance ->
             val oldBalance = oldUser.brain_coins_balance
             if (newBalance != oldBalance) {

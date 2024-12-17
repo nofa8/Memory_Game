@@ -19,6 +19,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.UserData
+import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.api.API
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.theme.ColorTextPrimary
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -28,7 +30,12 @@ fun FilterTypeDropdown(
     onOptionSelected: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val options = listOf("Personal", "Global")
+
+    var options = listOf("Global")
+    if (UserData.user.value != null && API.token.isNotEmpty()){
+        options = listOf("Personal", "Global")
+    }
+
     var expanded by remember { mutableStateOf(false) }
 
     ExposedDropdownMenuBox(

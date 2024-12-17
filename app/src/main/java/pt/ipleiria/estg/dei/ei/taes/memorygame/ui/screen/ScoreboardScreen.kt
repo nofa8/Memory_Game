@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
@@ -92,25 +93,32 @@ fun ScoreboardScreen(
 
                 Spacer(modifier = Modifier.weight(1f))
 
-                FilterBoardDropdown(
-                    selectedValue = selectedBoard,
-                    onOptionSelected = { selectedBoard = it },
-                    modifier = Modifier.weight(1f)
+
+            }
+
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+            ) {
+                // Main content - ScoreTab
+                ScoreTab(
+                    scores = if (selectedType == "Global") scores else scoresPersonal,
+                    modifier = Modifier
+                        .padding(vertical = 4.dp)
+                        .fillMaxWidth()
+                        .weight(1f) // Take up all available space, pushing BottomActionBar down
+                )
+
+                // Bottom Action Bar
+                BottomActionBar(
+                    onScoresClick = { navController.navigate("scoreboard") },
+                    onPlayClick = { navController.navigate("dashboard") },
+                    onProfileClick = { navController.navigate("profile") },
+                    modifier = Modifier
+                        .fillMaxWidth()
                 )
             }
 
-            ScoreTab(
-                scores = if(selectedType == "Global") scores else scoresPersonal,
-                modifier = Modifier
-                    .padding(vertical = 4.dp)
-                    .fillMaxWidth()
-            )
-            Spacer(modifier = Modifier.weight(1f))
-            BottomActionBar(
-                onScoresClick = { navController.navigate("scoreboard") },
-                onPlayClick = { navController.navigate("dashboard") },
-                onProfileClick = { navController.navigate("profile") }
-            )
         }
     }
 }
