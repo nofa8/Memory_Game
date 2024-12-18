@@ -65,7 +65,7 @@ fun HistoryScreen(
     val playerHistory by ScoreController.history.collectAsState(initial = emptyList())
 
     var selectedOrder by remember { mutableStateOf("Date") }
-    var selectedBoard by remember { mutableStateOf("3x4") }
+    var selectedBoard by remember { mutableStateOf("All") }
     var startDate by remember { mutableStateOf("") }
     var endDate by remember { mutableStateOf("") }
 
@@ -147,7 +147,7 @@ fun HistoryScreen(
                     // History Tab showing the player history
                     HistoryTab(
                         scores = if (selectedBoard == "All") playerHistory else {
-                            val (cardsRow, cardsColumn) = selectedBoard.split("x").map { it.toInt() }
+                            val (cardsColumn, cardsRow ) = selectedBoard.split("x").map { it.toInt() }
                             remember(selectedBoard) {
                                 playerHistory
                                     .filter { it.board == BoardData.boards.find({ it.cols == cardsColumn })!!.id }

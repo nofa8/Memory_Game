@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.NotificationsViewModel
+import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.UserData
 import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.api.API
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.components.BottomActionBar
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.components.ProfileStuff
@@ -47,8 +48,7 @@ fun ProfileScreen(
                 rightFunction = { NotificationButton(notificationsViewModel = notificationsViewModel) }
             )
 
-            // Content based on token availability
-            if (API.token.isNotEmpty()) {
+            if (API.token.isNotEmpty() && UserData.user.value != null) {
                 // Show history and logout button if the user is logged in
                 ProfileStuff("History", navController, "history")
 
