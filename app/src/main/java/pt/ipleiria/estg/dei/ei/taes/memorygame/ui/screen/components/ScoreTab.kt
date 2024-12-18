@@ -54,26 +54,27 @@ fun ScoreTab(
             ) {
                 ScoreHeaderCell(
                     text = "Name",
-                    modifier = Modifier.weight(1.2f),
+                    modifier = Modifier.weight(1f),
                     color = darkGrayText
                 )
-                Spacer(Modifier.weight(1f))
+                ScoreHeaderCell(
+                    text = "Start Date",
+                    modifier = Modifier.weight(2f),
+                    color = darkGrayText
+                )
                 ScoreHeaderCell(
                     text = "Time",
                     modifier = Modifier.weight(1f),
                     color = darkGrayText
                 )
-                Spacer(Modifier.weight(1f))
                 ScoreHeaderCell(
                     text = "Moves",
-                    modifier = Modifier.weight(0.8f),
+                    modifier = Modifier.weight(1f),
                     color = darkGrayText
                 )
-                Spacer(Modifier.weight(1f))
-
                 ScoreHeaderCell(
                     text = "Board",
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier.weight(.8f),
                     color = darkGrayText
                 )
             }
@@ -97,14 +98,21 @@ fun ScoreTab(
                                 .padding(vertical = 8.dp, horizontal = 12.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
+
                             ScoreCell(
                                 text = entry.name,
                                 modifier = Modifier
-                                    .weight(2f)
+                                    .weight(1f)
                                     .padding(end = 8.dp),
                                 color = softGrayText
                             )
-                            Spacer(Modifier.weight(1f))
+                            ScoreCell(
+                                text = entry.start_time?.toString() ?: "-----",
+                                modifier = Modifier
+                                    .weight(2f)
+                                    .padding(start = 8.dp, end = 8.dp),
+                                color = softGrayText
+                            )
                             ScoreCell(
                                 text = entry.total_time?.toString() ?: "-----",
                                 modifier = Modifier
@@ -112,16 +120,13 @@ fun ScoreTab(
                                     .padding(start = 8.dp, end = 8.dp),
                                 color = softGrayText
                             )
-                            Spacer(Modifier.weight(1f))
-
                             ScoreCell(
                                 text = entry.turns?.toString() ?: "-----",
                                 modifier = Modifier
-                                    .weight(1.2f)
+                                    .weight(1f)
                                     .padding(start = 8.dp),
                                 color = softGrayText
                             )
-                            Spacer(Modifier.weight(1f))
 
                             val boardIndex = entry.board - 1
                             val board = if (boardIndex in BoardData.boards.indices) {

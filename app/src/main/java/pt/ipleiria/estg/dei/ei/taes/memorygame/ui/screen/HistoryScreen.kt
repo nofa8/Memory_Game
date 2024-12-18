@@ -49,7 +49,9 @@ import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.BoardData
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.components.FilterBoardDropdown
+import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.components.FilterBoardExtraDropdown
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.components.FilterTypeTurnsNTimeNDate
 import java.util.Locale
 
@@ -66,6 +68,9 @@ fun HistoryScreen(
     var selectedBoard by remember { mutableStateOf("3x4") }
     var startDate by remember { mutableStateOf("") }
     var endDate by remember { mutableStateOf("") }
+
+
+    val boardFiltered =
 
     // Side effect to refresh data
     LaunchedEffect(Unit) {
@@ -127,7 +132,7 @@ fun HistoryScreen(
                         )
                         Spacer(Modifier.weight(1f))
 
-                        FilterBoardDropdown(selectedValue = selectedBoard,
+                        FilterBoardExtraDropdown(selectedValue = selectedBoard,
                             onOptionSelected = { selectedBoard = it },
                             modifier = Modifier.weight(1f)
                         )
@@ -141,7 +146,13 @@ fun HistoryScreen(
 
                     // History Tab showing the player history
                     HistoryTab(
-                        scores = playerHistory,
+                        scores = if (selectedBoard == "All") playerHistory else {
+                            val (cardsRow, cardsColumn) = selectedBoard.split("x").map { it.toInt() }
+                            remember(selectedBoard) {
+                                playerHistory
+                                    .filter { it.board == BoardData.boards.find({ it.cols == cardsColumn })!!.id }
+                            }
+                        },
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(vertical = 4.dp)

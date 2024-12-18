@@ -27,10 +27,13 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.NotificationsViewModel
 import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.ScoreController
+import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.UserData
+import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.api.API
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.components.BottomActionBar
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.components.BrainCoinsButton
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.components.FilterBoardDropdown
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.components.FilterTypeDropdown
+import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.components.FilterTypeTurnsNTime
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.components.NotificationButton
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.components.ScoreTab
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen.components.TopActionBar
@@ -43,20 +46,21 @@ fun ScoreboardScreen(
     brainViewModel: BrainViewModel,
     notificationsViewModel: NotificationsViewModel
 ) {
-    var selectedBoard by remember { mutableStateOf("3x4") }
     var selectedType by remember { mutableStateOf("Global") }
+    var selectedOrder by remember { mutableStateOf("Time") }
 
     LaunchedEffect(Unit) {
         CoroutineScope(Dispatchers.Main).launch {
             ScoreController.refreshScores()
             ScoreController.refreshPersonal()
+            ScoreController.refreshPersonalTurn()
         }
     }
 
     // Observe the scores reactively
     val scores by ScoreController.scores.collectAsState(initial = emptyList())
     val scoresPersonal by ScoreController.scoresPersonal.collectAsState(initial = emptyList())
-
+    val scoresPersonalTurn by ScoreController.scoresPersonalTurn.collectAsState(initial = emptyList())
 
 
 
@@ -88,11 +92,15 @@ fun ScoreboardScreen(
                 FilterTypeDropdown(
                     selectedValue = selectedType,
                     onOptionSelected = { selectedType = it },
-                    modifier = Modifier.weight(2f)
+                    modifier = Modifier.weight(1f)
                 )
 
                 Spacer(modifier = Modifier.weight(1f))
-
+                if (UserData.user.value != null && API.token.isNotEmpty() && selectedType == "Personal"){
+                    FilterTypeTurnsNTime(selectedValue = selectedOrder,
+                        onOptionSelected = { selectedOrder = it },
+                        modifier = Modifier.weight(1f))
+                }
 
             }
 
@@ -102,7 +110,7 @@ fun ScoreboardScreen(
             ) {
                 // Main content - ScoreTab
                 ScoreTab(
-                    scores = if (selectedType == "Global") scores else scoresPersonal,
+                    scores = if (selectedType == "Global") scores else if (selectedOrder == "Time") scoresPersonal else scoresPersonalTurn,
                     modifier = Modifier
                         .padding(vertical = 4.dp)
                         .fillMaxWidth()
