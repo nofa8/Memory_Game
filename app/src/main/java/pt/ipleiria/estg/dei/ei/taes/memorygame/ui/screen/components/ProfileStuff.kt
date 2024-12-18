@@ -32,8 +32,13 @@ fun ProfileStuff(
     ) {
 
         Button(
-            colors = ButtonColors(
+            colors = if (naviagateTo != "profile") ButtonColors(
                 containerColor = Color(0xFFF7F8E3),
+                contentColor = Color(0xFFFFFFFF),
+                disabledContainerColor = Color(0xAAFFFFFF),
+                disabledContentColor = Color(0xAAFFFFFF)
+            ) else  ButtonColors(
+                containerColor = Color(0xFFEE4C40),
                 contentColor = Color(0xFFFFFFFF),
                 disabledContainerColor = Color(0xAAFFFFFF),
                 disabledContentColor = Color(0xAAFFFFFF)

@@ -56,7 +56,7 @@ fun HistoryTab(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 HistoryHeaderCell(
-                    text = "Date",
+                    text = "Start Date",
                     modifier = Modifier
                         .weight(2f)
                         .padding(end = 8.dp),
@@ -84,7 +84,7 @@ fun HistoryTab(
                     color = darkGrayText
                 )
             }
-            if (scores.isEmpty() && ScoreController.fetchedScore()){
+            if (scores.isEmpty() && ScoreController.fetchedHistory()){
                 Text("No scores available!")
             }else if(scores.isEmpty()){
                 Text("Loading the history")

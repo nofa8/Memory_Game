@@ -22,8 +22,8 @@ data class ResponseTransaction(
 )
 
 object WebSocketManager {
-    private const val SOCKET_URL = "http://10.0.2.2:8080"
-//    private const val SOCKET_URL = "http://ws-dad-group-9-172.22.21.101.sslip.io"
+//    private const val SOCKET_URL = "http://10.0.2.2:8080"
+    private const val SOCKET_URL = "http://ws-dad-group-9-172.22.21.101.sslip.io"
     private const val TAG = "WebSocketManager"
     private var socket: Socket? = null
     private var login = false

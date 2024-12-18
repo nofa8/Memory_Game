@@ -39,6 +39,9 @@ object ScoreController {
     private val _scoresPersonal = MutableStateFlow<List<ScoreEntry>>(emptyList())
     val scoresPersonal: StateFlow<List<ScoreEntry>> = _scoresPersonal
 
+    private val _scoresPersonalTurn = MutableStateFlow<List<ScoreEntry>>(emptyList())
+    val scoresPersonalTurn: StateFlow<List<ScoreEntry>> = _scoresPersonalTurn
+
     private val _history = MutableStateFlow<List<ScoreEntry>>(emptyList())
     val history: StateFlow<List<ScoreEntry>> = _history
 
@@ -49,7 +52,6 @@ object ScoreController {
                 API.callApi(apiUrl = API.url + "/gamesTAES", httpMethod = "GET")
             }
             alreadyFetchedScore = true
-
             val jsonObject = Gson().fromJson(jsonResponse, JsonObject::class.java)
             val dataArray = jsonObject.getAsJsonArray("data")
             val type = object : TypeToken<List<ScoreEntry>>() {}.type
@@ -63,9 +65,22 @@ object ScoreController {
     suspend fun fetchPersonalScores(): List<ScoreEntry> {
         return try {
             val jsonResponse = withContext(Dispatchers.IO) {
-                API.callApi(apiUrl = API.url + "/gamesPersonalTAES", httpMethod = "GET")
+                API.callApi(apiUrl = API.url + "/gamesPersonalTimeTAES", httpMethod = "GET")
             }
-            alreadyFetchedScore = true
+            val jsonObject = Gson().fromJson(jsonResponse, JsonObject::class.java)
+            val dataArray = jsonObject.getAsJsonArray("data")
+            val type = object : TypeToken<List<ScoreEntry>>() {}.type
+            Gson().fromJson(dataArray, type)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            emptyList()
+        }
+    }
+    suspend fun fetchPersonalTurnScores(): List<ScoreEntry> {
+        return try {
+            val jsonResponse = withContext(Dispatchers.IO) {
+                API.callApi(apiUrl = API.url + "/gamesPersonalTurnTAES", httpMethod = "GET")
+            }
             val jsonObject = Gson().fromJson(jsonResponse, JsonObject::class.java)
             val dataArray = jsonObject.getAsJsonArray("data")
             val type = object : TypeToken<List<ScoreEntry>>() {}.type
@@ -92,6 +107,8 @@ object ScoreController {
             emptyList()
         }
     }
+
+
 
     suspend fun refreshScores() {
         try {
@@ -126,6 +143,62 @@ object ScoreController {
         }
     }
 
+
+    // Function to fetch the filtered history with start and end dates as parameters
+    suspend fun fetchFilteredHistory(type:String?=null,startDate: String? = null, endDate: String? = null): List<ScoreEntry> {
+        return try {
+            // Construct the query parameters based on whether dates are provided
+            val urlBuilder = StringBuilder(API.url + "/historyTAES?")
+
+            startDate?.let {
+                urlBuilder.append("start_date=$startDate&")
+            }
+            type?.let {
+                urlBuilder.append("type=$type&")
+            }
+            endDate?.let {
+                urlBuilder.append("end_date=$endDate&")
+            }
+
+            // Trim the trailing '&' if it exists
+            val url = if (urlBuilder.endsWith("&")) urlBuilder.substring(0, urlBuilder.length - 1) else urlBuilder.toString()
+
+            // Make the API call with the constructed URL
+            val jsonResponse = withContext(Dispatchers.IO) {
+                API.callApi(apiUrl = url, httpMethod = "GET")
+            }
+
+            // Parse the response
+            val jsonObject = Gson().fromJson(jsonResponse, JsonObject::class.java)
+            val dataArray = jsonObject.getAsJsonArray("data")
+            val type = object : TypeToken<List<ScoreEntry>>() {}.type
+            Gson().fromJson(dataArray, type)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            emptyList()
+        }
+    }
+
+    // Function to refresh the filtered history
+    suspend fun refreshFilterHistory(type: String? = null, startDate: String? = null, endDate: String? = null) {
+        try {
+            // Fetch the filtered history with the optional date filters
+            val newHistory = fetchFilteredHistory(type,startDate, endDate)
+
+            if (newHistory.isNotEmpty()) {
+                _history.update { newHistory }
+            } else {
+                // Handle empty history, maybe log or show a default state
+                _history.update { emptyList() }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            // Handle failure, maybe log it
+            _history.update { emptyList() }
+        }
+    }
+
+
     suspend fun refreshPersonal() {
         try {
             val newPerson = fetchPersonalScores()
@@ -143,6 +216,22 @@ object ScoreController {
         }
     }
 
+    suspend fun refreshPersonalTurn() {
+        try {
+            val newPerson = fetchPersonalTurnScores()
+            if (newPerson.isNotEmpty()) {
+                _scoresPersonalTurn.update { newPerson }
+
+            } else {
+                // Handle empty history, maybe log or show a default state
+                _scoresPersonalTurn.update { emptyList() }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            // Handle failure, maybe log it
+            _scoresPersonalTurn.update { emptyList() }
+        }
+    }
     fun fetchedScore (): Boolean {
         return alreadyFetchedScore
     }
