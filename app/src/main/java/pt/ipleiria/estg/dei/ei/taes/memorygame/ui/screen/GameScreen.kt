@@ -263,7 +263,7 @@ fun GameScreen(
                 type = "S",
                 status = "E", // "E" for Ended -> Only store the ones that end
                 total_time = elapsedTime, // in seconds
-                created_user_id = 1,
+                created_user_id = UserData.user.value!!.id ,
                 winner_user_id = null,
                 began_at = getCurrentFormattedTime(current_time),
                 ended_at = addSecondsToDateTime(current_time,  elapsedTime.toLong()),

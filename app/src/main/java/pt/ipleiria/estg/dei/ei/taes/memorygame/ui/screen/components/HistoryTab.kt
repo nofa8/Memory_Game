@@ -22,6 +22,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.BoardData
+import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.ScoreController
 import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.ScoreEntry
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -83,9 +84,11 @@ fun HistoryTab(
                     color = darkGrayText
                 )
             }
-            if (scores.isEmpty()){
-                Text("No scores available or are being loaded!")
-            }else {
+            if (scores.isEmpty() && ScoreController.fetchedScore()){
+                Text("No scores available!")
+            }else if(scores.isEmpty()){
+                Text("Loading the history")
+            }else{
                 LazyColumn {
                     itemsIndexed(scores) { index, entry ->
                         Row(
