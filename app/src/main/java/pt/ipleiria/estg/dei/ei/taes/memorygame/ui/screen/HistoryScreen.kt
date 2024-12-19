@@ -69,9 +69,6 @@ fun HistoryScreen(
     var startDate by remember { mutableStateOf("") }
     var endDate by remember { mutableStateOf("") }
 
-
-    val boardFiltered =
-
     // Side effect to refresh data
     LaunchedEffect(Unit) {
         ScoreController.refreshHistory()
@@ -141,6 +138,7 @@ fun HistoryScreen(
                     }
                     FilterButton {
                         CoroutineScope(Dispatchers.Main).launch {
+                            selectedBoard = "All"
                             ScoreController.refreshFilterHistory(selectedOrder, startDate, endDate)
                     } }
 
