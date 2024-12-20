@@ -52,8 +52,10 @@ fun ScoreboardScreen(
     LaunchedEffect(Unit) {
         CoroutineScope(Dispatchers.Main).launch {
             ScoreController.refreshScores()
-            ScoreController.refreshPersonal()
-            ScoreController.refreshPersonalTurn()
+            if (API.token.isNotBlank() && UserData.user.value != null) {
+                ScoreController.refreshPersonal()
+                ScoreController.refreshPersonalTurn()
+            }
         }
     }
 

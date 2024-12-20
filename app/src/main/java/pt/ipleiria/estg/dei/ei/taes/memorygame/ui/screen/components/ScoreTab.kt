@@ -100,7 +100,7 @@ fun ScoreTab(
                         ) {
 
                             ScoreCell(
-                                text = entry.name,
+                                text = if (entry.name == null) "Unknown" else entry.name ,
                                 modifier = Modifier
                                     .weight(1f)
                                     .padding(end = 8.dp),

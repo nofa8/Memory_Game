@@ -26,6 +26,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import pt.ipleiria.estg.dei.ei.taes.memorygame.R
+import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.UserData
 import pt.ipleiria.estg.dei.ei.taes.memorygame.functional.api.API
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.theme.ColorBrainButton
 import pt.ipleiria.estg.dei.ei.taes.memorygame.ui.theme.ColorBrainCoinsNumber
@@ -74,7 +75,7 @@ fun BrainCoinsButton(
         val uiState by brainViewModel.uiState.collectAsState()
         val brainValue = uiState.brainValue
 
-        if (API.token.isNotBlank()){
+        if (API.token.isNotBlank() && UserData.user.value != null){
             BrainCoins(modifier = Modifier.absoluteOffset(y = (-9.5f).dp).zIndex(1f),brainValue)
         }
 
