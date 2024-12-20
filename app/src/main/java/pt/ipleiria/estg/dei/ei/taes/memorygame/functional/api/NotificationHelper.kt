@@ -62,7 +62,7 @@ object NotificationHelper {
             .setSmallIcon(R.drawable.ic_notification)
             .setContentTitle("Memory Game Notifications")
             .setContentText("You have $unreadCount new notifications")
-            .setPriority(NotificationCompat.PRIORITY_LOW)
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setGroup(GROUP_KEY)
             .setGroupSummary(true)
             .setAutoCancel(true)
