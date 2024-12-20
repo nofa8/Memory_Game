@@ -54,7 +54,7 @@ fun ProfileScreen(
 
                 Spacer(modifier = Modifier.height(20.dp))
 
-                ProfileStuff("Logout", navController, "profile")
+                ProfileStuff("Logout", navController, "profile", notificationsViewModel)
 
             } else {
                 // Show login screen if the user is not logged in

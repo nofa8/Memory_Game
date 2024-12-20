@@ -33,6 +33,10 @@ class NotificationsViewModel : ViewModel() {
             }
         }
     }
+    fun clearAllNotifications(){
+        _notifications.clear()
+        _notifications.add(Notification("Session Started!", "", getCurrentFormattedTime(), false))
+    }
 
     fun addNotification(title: String, message: String) {
         val timestamp = getCurrentFormattedTime()
