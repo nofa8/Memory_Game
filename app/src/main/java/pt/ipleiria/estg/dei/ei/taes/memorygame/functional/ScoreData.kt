@@ -18,7 +18,7 @@ data class ScoreEntry(
     val status: String,
     val total_time: Float,
     val creator: Int, // Represents the creator's ID
-    val name: String, // Represents the creator's name
+    val name: String?, // Represents the creator's name
     val start_time: String,
     val end_time: String,
     val board: Int, // Updated to match the "3x4" or "6x6" string format or not : /

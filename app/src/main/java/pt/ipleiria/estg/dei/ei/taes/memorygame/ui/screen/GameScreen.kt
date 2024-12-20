@@ -259,21 +259,25 @@ fun GameScreen(
             }
         }
         else{
-            gameResult = GameResult(
-                type = "S",
-                status = "E", // "E" for Ended -> Only store the ones that end
-                total_time = elapsedTime, // in seconds
-                created_user_id = UserData.user.value!!.id ,
-                winner_user_id = null,
-                began_at = getCurrentFormattedTime(current_time),
-                ended_at = addSecondsToDateTime(current_time,  elapsedTime.toLong()),
-                board_id = board?.id ?: 1 , // Not supposed to have a null board, if so default board
-                total_turns_winner = moves.intValue
-            )
+            if (API.token.isNotBlank() && UserData.user.value != null){
+                gameResult = GameResult(
+                    type = "S",
+                    status = "E", // "E" for Ended -> Only store the ones that end
+                    total_time = elapsedTime, // in seconds
+                    created_user_id = UserData.user.value!!.id ,
+                    winner_user_id = null,
+                    began_at = getCurrentFormattedTime(current_time),
+                    ended_at = addSecondsToDateTime(current_time,  elapsedTime.toLong()),
+                    board_id = board?.id ?: 1 , // Not supposed to have a null board, if so default board
+                    total_turns_winner = moves.intValue
+                )
+                postGameResult(gameResult, current)
+            }
+
+
 
             popUpAlreadyOpened = true;
 
-            postGameResult(gameResult, current)
         }
 
     }
