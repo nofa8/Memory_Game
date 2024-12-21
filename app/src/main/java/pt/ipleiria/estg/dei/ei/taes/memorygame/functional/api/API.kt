@@ -25,8 +25,8 @@ class API private constructor(context: Context) {
         // The token is stored in memory (as a singleton)
         var token: String = ""
             private set
-//        var url: String = "http://10.0.2.2:8085/api"
-        var url:String = "http://api-dad-group-9-172.22.21.101.sslip.io/api"
+        var url: String = "http://10.0.2.2:8085/api"
+//        var url:String = "http://api-dad-group-9-172.22.21.101.sslip.io/api"
         var TOKEN_VALIDATION_ENDPOINT = "$url/users/me"
 
 

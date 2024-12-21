@@ -2,6 +2,7 @@ package pt.ipleiria.estg.dei.ei.taes.memorygame.ui.screen
 
 import BrainViewModel
 import android.content.Context
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -141,7 +142,15 @@ fun LoginScreen(
                             // Show success message and trigger navigation after delay
                             loginMessage = "Login Successful"
                             if (UserData.user.value != null) {
+                                if (WebSocketManager.getSocket() == null){
+                                    WebSocketManager.initializeSocket()
+
+                                }
+                                Log.i("WOW", "Connected to WebSocket server.")
+
                                 WebSocketManager.emitLogin(UserData.user.value!!)
+                                Log.i("WOW", "Login emited")
+
                             }
                             loginSuccess = true
                         } else {
@@ -223,6 +232,7 @@ fun performLogin(
             if (!token.isNullOrEmpty()) {
                 val api = API.getInstance(context) // Get the API singleton instance
                 api.saveToken(token)
+                UserData.fetchUser()
                 // Save token in API class (for future api related requests that need token for identification)
                 withContext(Dispatchers.Main) {
                     onResult(true, null) // Notify success
